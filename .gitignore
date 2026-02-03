@@ -7,3 +7,5 @@ crash.log
 dist/*
 .docs/*
 docs.zip
+
+.idea

@@ -3,27 +3,27 @@
 
 packer {
   required_plugins {
-    scaffolding = {
-      version = ">=v0.1.0"
-      source  = "github.com/hashicorp/scaffolding"
+    nebius = {
+      version = ">= 0.0.1"
+      source  = "gitlab.nebius.dev/project-compute/nebius"
     }
   }
 }
 
-source "scaffolding-my-builder" "foo-example" {
+source "nebius" "foo-example" {
   mock = local.foo
 }
 
-source "scaffolding-my-builder" "bar-example" {
+source "nebius" "bar-example" {
   mock = local.bar
 }
 
 build {
   sources = [
-    "source.scaffolding-my-builder.foo-example",
+    "source.nebius.foo-example",
   ]
 
-  source "source.scaffolding-my-builder.bar-example" {
+  source "source.nebius.bar-example" {
     name = "bar"
   }
 

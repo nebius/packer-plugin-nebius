@@ -1,10 +1,11 @@
-NAME=scaffolding
+NAME=nebius
 BINARY=packer-plugin-${NAME}
 
 COUNT?=1
 TEST?=$(shell go list ./...)
 HASHICORP_PACKER_PLUGIN_SDK_VERSION?=$(shell go list -m github.com/hashicorp/packer-plugin-sdk | cut -d " " -f2)
-PLUGIN_FQN=$(shell grep -E '^module' <go.mod | sed -E 's/module \s*//')
+#PLUGIN_FQN=$(shell grep -E '^module' <go.mod | sed -E 's/module \s*//')
+PLUGIN_FQN=gitlab.nebius.dev/project-compute/nebius
 
 .PHONY: dev
 
