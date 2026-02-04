@@ -1,12 +1,12 @@
 // Copyright IBM Corp. 2020, 2025
 // SPDX-License-Identifier: MPL-2.0
 
-package nebius
+package instance
 
 import (
 	_ "embed"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -33,19 +33,19 @@ func TestAccScaffoldingBuilder(t *testing.T) {
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code. Logfile: %s", logfile)
 				}
 			}
 
 			logs, err := os.Open(logfile)
 			if err != nil {
-				return fmt.Errorf("Unable find %s", logfile)
+				return fmt.Errorf("unable find %s", logfile)
 			}
 			defer logs.Close()
 
-			logsBytes, err := ioutil.ReadAll(logs)
+			logsBytes, err := io.ReadAll(logs)
 			if err != nil {
-				return fmt.Errorf("Unable to read %s", logfile)
+				return fmt.Errorf("unable to read %s", logfile)
 			}
 			logsString := string(logsBytes)
 

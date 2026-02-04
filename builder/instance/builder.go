@@ -1,12 +1,10 @@
-// Copyright IBM Corp. 2020, 2025
-// SPDX-License-Identifier: MPL-2.0
-
 //go:generate packer-sdc mapstructure-to-hcl2 -type Config
 
-package nebius
+package instance
 
 import (
 	"context"
+	"time"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/common"
@@ -14,45 +12,48 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
+	"github.com/nebius/gosdk"
+
+	nebiuscommon "github.com/hashicorp/packer-plugin-nebius/builder/common"
 )
 
-const BuilderId = "scaffolding.builder"
-
-type Config struct {
-	common.PackerConfig `mapstructure:",squash"`
-	MockOption          string `mapstructure:"mock"`
-}
+const BuilderId = "nebius.builder"
 
 type Builder struct {
 	config Config
 	runner multistep.Runner
+	sdk    *gosdk.SDK
+}
+
+type Config struct {
+	common.PackerConfig  `mapstructure:",squash"`
+	ServiceAccountConfig nebiuscommon.ServiceAccountConfig `mapstructure:"service_account"`
 }
 
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec { return b.config.FlatMapstructure().HCL2Spec() }
 
 func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings []string, err error) {
-	err = config.Decode(&b.config, &config.DecodeOpts{
-		PluginType:  "packer.builder.scaffolding",
-		Interpolate: true,
-	}, raws...)
+	if err := config.Decode(&b.config, &config.DecodeOpts{
+		PluginType: BuilderId,
+	}, raws...); err != nil {
+		return nil, nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	b.sdk, err = nebiuscommon.NewSDK(ctx, b.config.ServiceAccountConfig)
 	if err != nil {
 		return nil, nil, err
 	}
-	// Return the placeholder for the generated data that will become available to provisioners and post-processors.
-	// If the builder doesn't generate any data, just return an empty slice of string: []string{}
-	buildGeneratedData := []string{"GeneratedMockData"}
-	return buildGeneratedData, nil, nil
+
+	return []string{}, nil, nil
 }
 
 func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	steps := []multistep.Step{}
 
-	steps = append(steps,
-		&StepSayConfig{
-			MockConfig: b.config.MockOption,
-		},
-		new(commonsteps.StepProvision),
-	)
+	steps = append(steps, new(commonsteps.StepProvision))
 
 	// Setup the state bag and initial state for the steps
 	state := new(multistep.BasicStateBag)

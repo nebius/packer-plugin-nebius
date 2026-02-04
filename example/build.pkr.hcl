@@ -10,34 +10,14 @@ packer {
   }
 }
 
-source "nebius" "foo-example" {
-  mock = local.foo
-}
-
-source "nebius" "bar-example" {
-  mock = local.bar
+source "nebius-instance" "auth-check" {
+  service_account {
+    private_key_file_env = "NB_AUTHKEY_PRIVATE_PATH"
+    public_key_id_env    = "NB_AUTHKEY_PUBLIC_ID"
+    account_id_env       = "NB_SA_ID"
+  }
 }
 
 build {
-  sources = [
-    "source.nebius.foo-example",
-  ]
-
-  source "source.nebius.bar-example" {
-    name = "bar"
-  }
-
-  provisioner "scaffolding-my-provisioner" {
-    only = ["scaffolding-my-builder.foo-example"]
-    mock = "foo: ${local.foo}"
-  }
-
-  provisioner "scaffolding-my-provisioner" {
-    only = ["scaffolding-my-builder.bar"]
-    mock = "bar: ${local.bar}"
-  }
-
-  post-processor "scaffolding-my-post-processor" {
-    mock = "post-processor mock-config"
-  }
+  sources = ["source.nebius-instance.auth-check"]
 }
