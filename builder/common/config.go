@@ -1,4 +1,4 @@
-//go:generate packer-sdc mapstructure-to-hcl2 -type ServiceAccountConfig,DiskConfig,BaseImageConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type ServiceAccountConfig,DiskConfig,BaseImageConfig,NetworkConfig,InstanceConfig
 package common
 
 import (
@@ -10,17 +10,20 @@ type ServiceAccountConfig struct {
 	PrivateKeyFileEnv string `mapstructure:"private_key_file_env"`
 	PublicKeyIDEnv    string `mapstructure:"public_key_id_env"`
 	AccountIDEnv      string `mapstructure:"account_id_env"`
+	PrivateKeyFile    string `mapstructure:"private_key_file"`
+	PublicKeyID       string `mapstructure:"public_key_id"`
+	AccountID         string `mapstructure:"account_id"`
 }
 
 func (c *ServiceAccountConfig) Validate() error {
-	if c.PrivateKeyFileEnv == "" {
-		return fmt.Errorf("service_account.private_key_file_env is required")
+	if c.PrivateKeyFileEnv == "" && c.PrivateKeyFile == "" {
+		return fmt.Errorf("either service_account.private_key_file_env or service_account.private_key_file must be set")
 	}
-	if c.PublicKeyIDEnv == "" {
-		return fmt.Errorf("service_account.public_key_file_env is required")
+	if c.PublicKeyIDEnv == "" && c.PublicKeyID == "" {
+		return fmt.Errorf("either service_account.public_key_id_env or service_account.public_key_id must be set")
 	}
-	if c.AccountIDEnv == "" {
-		return fmt.Errorf("service_account.account_id_env is required")
+	if c.AccountIDEnv == "" && c.AccountID == "" {
+		return fmt.Errorf("either service_account.account_id_env or service_account.account_id must be set")
 	}
 	return nil
 }
@@ -61,5 +64,29 @@ func (c *BaseImageConfig) Validate() error {
 		return fmt.Errorf("either base_image.id must be set, or both base_image.parent_id and base_image.family must be set")
 	}
 
+	return nil
+}
+
+type NetworkConfig struct {
+	SubnetID                 string `mapstructure:"subnet_id"`
+	AssociatePublicIpAddress bool   `mapstructure:"associate_public_ip_address"`
+}
+
+func (c *NetworkConfig) Validate() error {
+	return nil
+}
+
+type InstanceConfig struct {
+	Platform string `mapstructure:"platform"`
+	Preset   string `mapstructure:"preset"`
+}
+
+func (c *InstanceConfig) Validate() error {
+	if c.Platform == "" {
+		return fmt.Errorf("instance.platform is required")
+	}
+	if c.Preset == "" {
+		return fmt.Errorf("instance.preset is required")
+	}
 	return nil
 }

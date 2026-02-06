@@ -1,13 +1,10 @@
-//go:generate packer-sdc mapstructure-to-hcl2 -type Config
 package instance
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	nebiuscommon "github.com/hashicorp/packer-plugin-nebius/builder/common"
-	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -21,32 +18,6 @@ type Builder struct {
 	config Config
 	runner multistep.Runner
 	sdk    *gosdk.SDK
-}
-
-type Config struct {
-	common.PackerConfig  `mapstructure:",squash"`
-	ParentID             string                            `mapstructure:"parent_id"`
-	ServiceAccountConfig nebiuscommon.ServiceAccountConfig `mapstructure:"service_account"`
-	DiskConfig           nebiuscommon.DiskConfig           `mapstructure:"disk"`
-	BaseImageConfig      nebiuscommon.BaseImageConfig      `mapstructure:"base_image"`
-}
-
-func (c *Config) validate() error {
-	if c.ParentID == "" {
-		return fmt.Errorf("parent_id is required")
-	}
-
-	if err := c.ServiceAccountConfig.Validate(); err != nil {
-		return err
-	}
-	if err := c.DiskConfig.Validate(); err != nil {
-		return err
-	}
-	if err := c.BaseImageConfig.Validate(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec { return b.config.FlatMapstructure().HCL2Spec() }
@@ -73,10 +44,10 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	ui.Message("Create resources...")
 	steps := []multistep.Step{
-		&StepCreateDisk{
-			SDK:    b.sdk,
-			Config: b.config,
-		},
+		NewStepCreateDisk(b.sdk, b.config),
+		NewStepFindNetwork(b.sdk, b.config),
+		NewStepCreateSSHKey(),
+		NewStepCreateInstance(b.sdk, b.config),
 		new(commonsteps.StepProvision),
 	}
 

@@ -15,12 +15,22 @@ source "nebius-instance" "auth-check" {
     private_key_file_env = "NB_AUTHKEY_PRIVATE_PATH"
     public_key_id_env    = "NB_AUTHKEY_PUBLIC_ID"
     account_id_env       = "NB_SA_ID"
+    private_key_file     = "/Users/ruslan/projects/nebius/packer-plugin-nebius/example/authkey/private.pem"
+    public_key_id        = "publickey-e0tk41vmw8sqsk6ja8"
+    account_id           = "serviceaccount-e0tx3ejmbyn55rkfys"
   }
   disk {
     size_gibibytes = 10
   }
   base_image {
     id = "computeimage-e0tnmenkcw3exfx4mm"
+  }
+  network {
+    associate_public_ip_address = true
+  }
+  instance {
+    platform = "cpu-d3"
+    preset   = "4vcpu-16gb"
   }
   parent_id = "project-e0tr8t9cc5s460k4r8n71"
 }

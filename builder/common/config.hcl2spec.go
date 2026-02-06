@@ -59,12 +59,65 @@ func (*FlatDiskConfig) HCL2Spec() map[string]hcldec.Spec {
 	return s
 }
 
+// FlatInstanceConfig is an auto-generated flat version of InstanceConfig.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatInstanceConfig struct {
+	Platform *string `mapstructure:"platform" cty:"platform" hcl:"platform"`
+	Preset   *string `mapstructure:"preset" cty:"preset" hcl:"preset"`
+}
+
+// FlatMapstructure returns a new FlatInstanceConfig.
+// FlatInstanceConfig is an auto-generated flat version of InstanceConfig.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*InstanceConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatInstanceConfig)
+}
+
+// HCL2Spec returns the hcl spec of a InstanceConfig.
+// This spec is used by HCL to read the fields of InstanceConfig.
+// The decoded values from this spec will then be applied to a FlatInstanceConfig.
+func (*FlatInstanceConfig) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"platform": &hcldec.AttrSpec{Name: "platform", Type: cty.String, Required: false},
+		"preset":   &hcldec.AttrSpec{Name: "preset", Type: cty.String, Required: false},
+	}
+	return s
+}
+
+// FlatNetworkConfig is an auto-generated flat version of NetworkConfig.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatNetworkConfig struct {
+	SubnetID                 *string `mapstructure:"subnet_id" cty:"subnet_id" hcl:"subnet_id"`
+	AssociatePublicIpAddress *bool   `mapstructure:"associate_public_ip_address" cty:"associate_public_ip_address" hcl:"associate_public_ip_address"`
+}
+
+// FlatMapstructure returns a new FlatNetworkConfig.
+// FlatNetworkConfig is an auto-generated flat version of NetworkConfig.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*NetworkConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatNetworkConfig)
+}
+
+// HCL2Spec returns the hcl spec of a NetworkConfig.
+// This spec is used by HCL to read the fields of NetworkConfig.
+// The decoded values from this spec will then be applied to a FlatNetworkConfig.
+func (*FlatNetworkConfig) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"subnet_id":                   &hcldec.AttrSpec{Name: "subnet_id", Type: cty.String, Required: false},
+		"associate_public_ip_address": &hcldec.AttrSpec{Name: "associate_public_ip_address", Type: cty.Bool, Required: false},
+	}
+	return s
+}
+
 // FlatServiceAccountConfig is an auto-generated flat version of ServiceAccountConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatServiceAccountConfig struct {
 	PrivateKeyFileEnv *string `mapstructure:"private_key_file_env" cty:"private_key_file_env" hcl:"private_key_file_env"`
 	PublicKeyIDEnv    *string `mapstructure:"public_key_id_env" cty:"public_key_id_env" hcl:"public_key_id_env"`
 	AccountIDEnv      *string `mapstructure:"account_id_env" cty:"account_id_env" hcl:"account_id_env"`
+	PrivateKeyFile    *string `mapstructure:"private_key_file" cty:"private_key_file" hcl:"private_key_file"`
+	PublicKeyID       *string `mapstructure:"public_key_id" cty:"public_key_id" hcl:"public_key_id"`
+	AccountID         *string `mapstructure:"account_id" cty:"account_id" hcl:"account_id"`
 }
 
 // FlatMapstructure returns a new FlatServiceAccountConfig.
@@ -82,6 +135,9 @@ func (*FlatServiceAccountConfig) HCL2Spec() map[string]hcldec.Spec {
 		"private_key_file_env": &hcldec.AttrSpec{Name: "private_key_file_env", Type: cty.String, Required: false},
 		"public_key_id_env":    &hcldec.AttrSpec{Name: "public_key_id_env", Type: cty.String, Required: false},
 		"account_id_env":       &hcldec.AttrSpec{Name: "account_id_env", Type: cty.String, Required: false},
+		"private_key_file":     &hcldec.AttrSpec{Name: "private_key_file", Type: cty.String, Required: false},
+		"public_key_id":        &hcldec.AttrSpec{Name: "public_key_id", Type: cty.String, Required: false},
+		"account_id":           &hcldec.AttrSpec{Name: "account_id", Type: cty.String, Required: false},
 	}
 	return s
 }

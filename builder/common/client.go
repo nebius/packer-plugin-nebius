@@ -67,18 +67,25 @@ func WaitFinishOperation(ctx context.Context, sdk *gosdk.SDK, operationID string
 }
 
 func resolveServiceAccountFromEnv(ctx context.Context, saConfig ServiceAccountConfig) (auth.ServiceAccount, error) {
-	privateKeyFile := os.Getenv(saConfig.PrivateKeyFileEnv)
-	publicKeyID := os.Getenv(saConfig.PublicKeyIDEnv)
-	accountID := os.Getenv(saConfig.AccountIDEnv)
-
+	privateKeyFile := saConfig.PrivateKeyFile
 	if privateKeyFile == "" {
-		return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.PrivateKeyFileEnv)
+		if privateKeyFile = os.Getenv(saConfig.PrivateKeyFileEnv); privateKeyFile == "" {
+			return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.PrivateKeyFileEnv)
+		}
 	}
+
+	publicKeyID := saConfig.PublicKeyID
 	if publicKeyID == "" {
-		return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.PublicKeyIDEnv)
+		if publicKeyID = os.Getenv(saConfig.PublicKeyIDEnv); publicKeyID == "" {
+			return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.PublicKeyIDEnv)
+		}
 	}
+
+	accountID := saConfig.AccountID
 	if accountID == "" {
-		return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.AccountIDEnv)
+		if accountID = os.Getenv(saConfig.AccountIDEnv); accountID == "" {
+			return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.AccountIDEnv)
+		}
 	}
 
 	sa, err := auth.NewPrivateKeyFileParser(nil, privateKeyFile, publicKeyID, accountID).ServiceAccount(ctx)
