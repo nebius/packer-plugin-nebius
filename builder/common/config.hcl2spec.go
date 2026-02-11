@@ -59,6 +59,45 @@ func (*FlatDiskConfig) HCL2Spec() map[string]hcldec.Spec {
 	return s
 }
 
+// FlatImageConfig is an auto-generated flat version of ImageConfig.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatImageConfig struct {
+	Name                     *string           `mapstructure:"name" cty:"name" hcl:"name"`
+	Labels                   map[string]string `mapstructure:"labels" cty:"labels" hcl:"labels"`
+	ImageFamily              *string           `mapstructure:"image_family" cty:"image_family" hcl:"image_family"`
+	ImageFamilyHumanReadable *string           `mapstructure:"image_family_human_readable" cty:"image_family_human_readable" hcl:"image_family_human_readable"`
+	Version                  *string           `mapstructure:"version" cty:"version" hcl:"version"`
+	CPUArchitecture          *string           `mapstructure:"cpu_architecture" cty:"cpu_architecture" hcl:"cpu_architecture"`
+	ParentID                 *string           `mapstructure:"parent_id" cty:"parent_id" hcl:"parent_id"`
+	UnsupportedPlatforms     map[string]string `mapstructure:"unsupported_platforms" cty:"unsupported_platforms" hcl:"unsupported_platforms"`
+	RecommendedPlatforms     []string          `mapstructure:"recommended_platforms" cty:"recommended_platforms" hcl:"recommended_platforms"`
+}
+
+// FlatMapstructure returns a new FlatImageConfig.
+// FlatImageConfig is an auto-generated flat version of ImageConfig.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*ImageConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatImageConfig)
+}
+
+// HCL2Spec returns the hcl spec of a ImageConfig.
+// This spec is used by HCL to read the fields of ImageConfig.
+// The decoded values from this spec will then be applied to a FlatImageConfig.
+func (*FlatImageConfig) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"name":                        &hcldec.AttrSpec{Name: "name", Type: cty.String, Required: false},
+		"labels":                      &hcldec.AttrSpec{Name: "labels", Type: cty.Map(cty.String), Required: false},
+		"image_family":                &hcldec.AttrSpec{Name: "image_family", Type: cty.String, Required: false},
+		"image_family_human_readable": &hcldec.AttrSpec{Name: "image_family_human_readable", Type: cty.String, Required: false},
+		"version":                     &hcldec.AttrSpec{Name: "version", Type: cty.String, Required: false},
+		"cpu_architecture":            &hcldec.AttrSpec{Name: "cpu_architecture", Type: cty.String, Required: false},
+		"parent_id":                   &hcldec.AttrSpec{Name: "parent_id", Type: cty.String, Required: false},
+		"unsupported_platforms":       &hcldec.AttrSpec{Name: "unsupported_platforms", Type: cty.Map(cty.String), Required: false},
+		"recommended_platforms":       &hcldec.AttrSpec{Name: "recommended_platforms", Type: cty.List(cty.String), Required: false},
+	}
+	return s
+}
+
 // FlatInstanceConfig is an auto-generated flat version of InstanceConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatInstanceConfig struct {

@@ -74,6 +74,7 @@ type FlatConfig struct {
 	BaseImageConfig           *common.FlatBaseImageConfig      `mapstructure:"base_image" cty:"base_image" hcl:"base_image"`
 	NetworkConfig             *common.FlatNetworkConfig        `mapstructure:"network" cty:"network" hcl:"network"`
 	InstanceConfig            *common.FlatInstanceConfig       `mapstructure:"instance" cty:"instance" hcl:"instance"`
+	ImageConfig               *common.FlatImageConfig          `mapstructure:"image" cty:"image" hcl:"image"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -151,6 +152,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"base_image":                   &hcldec.BlockSpec{TypeName: "base_image", Nested: hcldec.ObjectSpec((*common.FlatBaseImageConfig)(nil).HCL2Spec())},
 		"network":                      &hcldec.BlockSpec{TypeName: "network", Nested: hcldec.ObjectSpec((*common.FlatNetworkConfig)(nil).HCL2Spec())},
 		"instance":                     &hcldec.BlockSpec{TypeName: "instance", Nested: hcldec.ObjectSpec((*common.FlatInstanceConfig)(nil).HCL2Spec())},
+		"image":                        &hcldec.BlockSpec{TypeName: "image", Nested: hcldec.ObjectSpec((*common.FlatImageConfig)(nil).HCL2Spec())},
 	}
 	return s
 }

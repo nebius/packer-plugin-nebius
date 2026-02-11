@@ -33,11 +33,18 @@ source "nebius-instance" "image-create" {
     platform = "cpu-d3"
     preset   = "4vcpu-16gb"
   }
+  image {
+    name = "ubuntu24.04-driverless-0.0.4"
+    version = "0.0.4"
+    image_family = "ubuntu24.04-driverless-wolfwalker"
+    cpu_architecture = "amd64"
+    image_family_human_readable = "Ubuntu 24.04 Driverless"
+  }
   parent_id = "project-e0tr8t9cc5s460k4r8n71"
 }
 
 build {
-  sources = ["source.nebius-instance.auth-check"]
+  sources = ["source.nebius-instance.image-create"]
   provisioner "ansible" {
     playbook_file = "provision.yml"
   }
