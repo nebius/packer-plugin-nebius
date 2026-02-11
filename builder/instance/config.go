@@ -21,27 +21,36 @@ type Config struct {
 	BaseImageConfig      nebiuscommon.BaseImageConfig      `mapstructure:"base_image"`
 	NetworkConfig        nebiuscommon.NetworkConfig        `mapstructure:"network"`
 	InstanceConfig       nebiuscommon.InstanceConfig       `mapstructure:"instance"`
+	ImageConfig          nebiuscommon.ImageConfig          `mapstructure:"image"`
 }
 
-func (c *Config) validate() error {
+func (c *Config) validate() []error {
+	errors := []error{}
+
 	if c.ParentID == "" {
-		return fmt.Errorf("parent_id is required")
+		errors = append(errors, fmt.Errorf("parent_id must be set"))
 	}
 
 	if err := c.ServiceAccountConfig.Validate(); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := c.DiskConfig.Validate(); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := c.BaseImageConfig.Validate(); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := c.NetworkConfig.Validate(); err != nil {
-		return err
+		errors = append(errors, err)
+	}
+	if err := c.InstanceConfig.Validate(); err != nil {
+		errors = append(errors, err)
+	}
+	if err := c.ImageConfig.Validate(); err != nil {
+		errors = append(errors, err)
 	}
 
-	return nil
+	return errors
 }
 
 func (c *Config) prepareSSH(ctx *interpolate.Context) []error {

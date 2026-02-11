@@ -98,7 +98,7 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionHalt
 	}
 
-	ui.Message(fmt.Sprintf("Instance %s creation completed", diskID))
+	ui.Message(fmt.Sprintf("Instance %s creation completed", instanceID))
 	return multistep.ActionContinue
 }
 

@@ -17,7 +17,7 @@ type StepGetInstanceIP struct {
 	config Config
 }
 
-func NewStepStepGetInstanceIP(sdk *gosdk.SDK, config Config) *StepGetInstanceIP {
+func NewStepGetInstanceIP(sdk *gosdk.SDK, config Config) *StepGetInstanceIP {
 	return &StepGetInstanceIP{
 		sdk:    sdk,
 		config: config,

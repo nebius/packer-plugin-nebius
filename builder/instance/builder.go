@@ -15,7 +15,7 @@ import (
 	"github.com/nebius/gosdk"
 )
 
-const BuilderId = "nebius.builder"
+const BuilderId = "nebius.image-builder"
 
 type Builder struct {
 	config Config
@@ -36,8 +36,8 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 		return nil, nil, multierror.Append(nil, errs...).ErrorOrNil()
 	}
 
-	if err := b.config.validate(); err != nil {
-		return nil, nil, err
+	if errs := b.config.validate(); len(errs) > 0 {
+		return nil, nil, multierror.Append(nil, errs...).ErrorOrNil()
 	}
 
 	b.sdk, err = nebiuscommon.NewSDK(context.Background(), b.config.ServiceAccountConfig, b.config.ParentID)
@@ -58,13 +58,15 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
 		},
 		NewStepCreateInstance(b.sdk, &b.config),
-		NewStepStepGetInstanceIP(b.sdk, b.config),
+		NewStepGetInstanceIP(b.sdk, b.config),
 		&communicator.StepConnect{
 			Config:    &b.config.Comm,
 			Host:      communicator.CommHost("", stateIPAddress),
 			SSHConfig: b.config.Comm.SSHConfigFunc(),
 		},
-		new(commonsteps.StepProvision),
+		new(commonsteps.StepProvision), // Ansible, etc. provisioning steps would go here
+		NewStepStopInstance(b.sdk),
+		NewStepCreateImage(b.sdk, b.config),
 	}
 
 	// set up the state bag and initial state for the steps
@@ -82,9 +84,10 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	}
 
 	artifact := &Artifact{
-		// Add the builder generated data to the artifact StateData so that post-processors
-		// can access them.
-		StateData: map[string]interface{}{"generated_data": state.Get("generated_data")},
+		StateData: map[string]interface{}{
+			"image_id": state.Get(stateImageID).(string),
+		},
+		imageID: state.Get(stateImageID).(string),
 	}
 	return artifact, nil
 }

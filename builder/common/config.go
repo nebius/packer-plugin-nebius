@@ -1,8 +1,9 @@
-//go:generate packer-sdc mapstructure-to-hcl2 -type ServiceAccountConfig,DiskConfig,BaseImageConfig,NetworkConfig,InstanceConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type ServiceAccountConfig,DiskConfig,BaseImageConfig,NetworkConfig,InstanceConfig,ImageConfig
 package common
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -84,5 +85,35 @@ func (c *InstanceConfig) Validate() error {
 	if c.Preset == "" {
 		return fmt.Errorf("instance.preset is required")
 	}
+	return nil
+}
+
+type ImageConfig struct {
+	Name                     string            `mapstructure:"name"`
+	Labels                   map[string]string `mapstructure:"labels"`
+	ImageFamily              string            `mapstructure:"image_family"`
+	ImageFamilyHumanReadable string            `mapstructure:"image_family_human_readable"`
+	Version                  string            `mapstructure:"version"`
+	CPUArchitecture          string            `mapstructure:"cpu_architecture"`
+	ParentID                 string            `mapstructure:"parent_id"`
+	UnsupportedPlatforms     map[string]string `mapstructure:"unsupported_platforms"`
+	RecommendedPlatforms     []string          `mapstructure:"recommended_platforms"`
+}
+
+func (c *ImageConfig) Validate() error {
+	if c.Name == "" {
+		return fmt.Errorf("image.name is required")
+	}
+	if c.ImageFamily != "" && c.Version == "" {
+		return fmt.Errorf("image.version is required when image.image_family is set")
+	}
+	if c.ImageFamily != "" && c.ImageFamilyHumanReadable == "" {
+		return fmt.Errorf("image.image_family_human_readable is required when image.image_family is set")
+	}
+
+	if !slices.Contains([]string{"", "arm64", "amd64"}, strings.ToLower(c.CPUArchitecture)) {
+		return fmt.Errorf("invalid image.cpu_architecture: %s. use one of: arm64, amd64", c.CPUArchitecture)
+	}
+
 	return nil
 }
