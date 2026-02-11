@@ -1,0 +1,9 @@
+- name: Verify connectivity
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Ensure that net-tools is installed
+      ansible.builtin.package:
+        name: net-tools
+        state: latest

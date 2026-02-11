@@ -10,7 +10,8 @@ packer {
   }
 }
 
-source "nebius-instance" "auth-check" {
+source "nebius-instance" "image-create" {
+  communicator = "ssh"
   service_account {
     private_key_file_env = "NB_AUTHKEY_PRIVATE_PATH"
     public_key_id_env    = "NB_AUTHKEY_PUBLIC_ID"
@@ -23,7 +24,7 @@ source "nebius-instance" "auth-check" {
     size_gibibytes = 10
   }
   base_image {
-    id = "computeimage-e0tnmenkcw3exfx4mm"
+    family = "ubuntu24.04-driverless"
   }
   network {
     associate_public_ip_address = true
@@ -37,4 +38,7 @@ source "nebius-instance" "auth-check" {
 
 build {
   sources = ["source.nebius-instance.auth-check"]
+  provisioner "ansible" {
+    playbook_file = "provision.yml"
+  }
 }

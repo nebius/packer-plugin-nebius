@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -35,14 +36,13 @@ func WaitFinishOperation(ctx context.Context, sdk *gosdk.SDK, operationID string
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	timeout := time.After(10 * time.Minute)
-
 	for {
 		select {
 		case <-ctx.Done():
+			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				return fmt.Errorf("timeout while waiting for operation %s to finish", operationID)
+			}
 			return ctx.Err()
-		case <-timeout:
-			return fmt.Errorf("timeout waiting for operation %s to finish", operationID)
 		case <-ticker.C:
 			resp, err := sdk.Services().Compute().V1().Image().GetOperation(ctx, &commonv1.GetOperationRequest{Id: operationID})
 			if err != nil {
@@ -94,4 +94,10 @@ func resolveServiceAccountFromEnv(ctx context.Context, saConfig ServiceAccountCo
 	}
 
 	return sa, nil
+}
+
+func WaitFinishOperationWithTimeout(ctx context.Context, sdk *gosdk.SDK, operationID string, timeout time.Duration) error {
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	return WaitFinishOperation(ctxWithTimeout, sdk, operationID)
 }

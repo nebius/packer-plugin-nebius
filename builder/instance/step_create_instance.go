@@ -3,27 +3,27 @@ package instance
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/packer-plugin-nebius/builder/common"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/nebius/gosdk"
 	commonv1 "github.com/nebius/gosdk/proto/nebius/common/v1"
 	computev1 "github.com/nebius/gosdk/proto/nebius/compute/v1"
-
-	"github.com/hashicorp/packer-plugin-nebius/builder/common"
 )
 
 const stateInstanceID = "instance_id"
-const ipAddressID = "ip_address_id"
+const stateIPAddress = "ip_address"
 
 type StepCreateInstance struct {
 	sdk    *gosdk.SDK
-	config Config
+	config *Config
 }
 
-func NewStepCreateInstance(sdk *gosdk.SDK, config Config) *StepCreateInstance {
+func NewStepCreateInstance(sdk *gosdk.SDK, config *Config) *StepCreateInstance {
 	return &StepCreateInstance{
 		sdk:    sdk,
 		config: config,
@@ -42,15 +42,10 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 		publicIPAddress = &computev1.PublicIPAddress{}
 	}
 
-	cloudInitUserData := fmt.Sprintf(`#cloud-config
-users:
-  - default
-  - name: packer
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    shell: /bin/bash
-    ssh_authorized_keys:
-      - %s
-`, state.Get(stateSSHPublicKey).(string))
+	cloudInitUserData := s.BuildUserData()
+	if s.config.PackerDebug {
+		ui.Message(fmt.Sprintf("Cloud-init user data:\n%s", cloudInitUserData))
+	}
 
 	req := &computev1.CreateInstanceRequest{
 		Metadata: &commonv1.ResourceMetadata{
@@ -82,7 +77,7 @@ users:
 					},
 				},
 			},
-			CloudInitUserData: cloudInitUserData,
+			CloudInitUserData: s.BuildUserData(),
 		},
 	}
 
@@ -98,7 +93,7 @@ users:
 	ui.Message(fmt.Sprintf("Created operation %s with instance %s", resp.ID(), instanceID))
 	ui.Message(fmt.Sprintf("Waiting for finish of operation %s...", resp.ID()))
 
-	if err := common.WaitFinishOperation(ctx, s.sdk, resp.ID()); err != nil {
+	if err := common.WaitFinishOperationWithTimeout(ctx, s.sdk, resp.ID(), 10*time.Minute); err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
@@ -131,9 +126,34 @@ func (s *StepCreateInstance) Cleanup(state multistep.StateBag) {
 		return
 	}
 
-	if err := common.WaitFinishOperation(ctx, s.sdk, resp.ID()); err != nil {
+	if err := common.WaitFinishOperationWithTimeout(ctx, s.sdk, resp.ID(), 10*time.Minute); err != nil {
 		ui.Error(fmt.Sprintf("Failed to wait for delete operation %s to finish: %v", resp.ID(), err))
 	}
 
 	ui.Message(fmt.Sprintf("Instance %s deletion completed", instanceID))
+}
+
+func (s *StepCreateInstance) BuildUserData() string {
+	if s.config.Comm.SSHTemporaryKeyPairName == "" {
+		// no need to build cloud-init user data if we're not using a temporary SSH key pair,
+		// since the public key will be injected through the instance metadata by the communicator step
+		return ""
+	}
+
+	publicKey := strings.TrimSpace(string(s.config.Comm.SSH.SSHPublicKey))
+	if publicKey == "" {
+		return ""
+	}
+
+	cloudInitUserData := fmt.Sprintf(`#cloud-config
+users:
+  - default
+  - name: %s
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - %s packer-temporary-key
+`, s.config.Comm.SSH.SSHUsername, publicKey)
+
+	return cloudInitUserData
 }
