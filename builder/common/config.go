@@ -56,12 +56,8 @@ type BaseImageConfig struct {
 }
 
 func (c *BaseImageConfig) Validate() error {
-	if c.ID != "" {
-		return nil
-	}
-
-	if c.ParentID == "" || c.Family == "" {
-		return fmt.Errorf("either base_image.id must be set, or both base_image.parent_id and base_image.family must be set")
+	if c.ID == "" && c.Family == "" {
+		return fmt.Errorf("base_image.id or base_image.family must be set")
 	}
 
 	return nil

@@ -3,12 +3,15 @@ package instance
 import (
 	"context"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	nebiuscommon "github.com/hashicorp/packer-plugin-nebius/builder/common"
+	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
+	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 	"github.com/nebius/gosdk"
 )
 
@@ -29,6 +32,10 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 		return nil, nil, err
 	}
 
+	if errs := b.config.prepareSSH(interpolate.NewContext()); len(errs) > 0 {
+		return nil, nil, multierror.Append(nil, errs...).ErrorOrNil()
+	}
+
 	if err := b.config.validate(); err != nil {
 		return nil, nil, err
 	}
@@ -46,8 +53,17 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	steps := []multistep.Step{
 		NewStepCreateDisk(b.sdk, b.config),
 		NewStepFindNetwork(b.sdk, b.config),
-		NewStepCreateSSHKey(),
-		NewStepCreateInstance(b.sdk, b.config),
+		&communicator.StepSSHKeyGen{
+			CommConf:            &b.config.Comm,
+			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
+		},
+		NewStepCreateInstance(b.sdk, &b.config),
+		NewStepStepGetInstanceIP(b.sdk, b.config),
+		&communicator.StepConnect{
+			Config:    &b.config.Comm,
+			Host:      communicator.CommHost("", stateIPAddress),
+			SSHConfig: b.config.Comm.SSHConfigFunc(),
+		},
 		new(commonsteps.StepProvision),
 	}
 
@@ -55,12 +71,6 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	state := new(multistep.BasicStateBag)
 	state.Put("hook", hook)
 	state.Put("ui", ui)
-
-	// Set the value of the generated data that will become available to provisioners.
-	// To share the data with post-processors, use the StateData in the artifact.
-	state.Put("generated_data", map[string]interface{}{
-		"GeneratedMockData": "mock-build-data",
-	})
 
 	// Run!
 	b.runner = commonsteps.NewRunner(steps, b.config.PackerConfig, ui)

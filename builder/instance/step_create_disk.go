@@ -63,7 +63,7 @@ func (s *StepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		req.Spec.Source = &computev1.DiskSpec_SourceImageFamily{
 			SourceImageFamily: &computev1.SourceImageFamily{
 				ImageFamily: s.config.BaseImageConfig.Family,
-				ParentId:    s.config.ParentID,
+				ParentId:    s.config.BaseImageConfig.ParentID,
 			},
 		}
 	}
@@ -80,7 +80,7 @@ func (s *StepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	ui.Message(fmt.Sprintf("Created operation %s with disk %s", resp.ID(), diskID))
 	ui.Message(fmt.Sprintf("Waiting for finish of operation %s...", resp.ID()))
 
-	if err := common.WaitFinishOperation(ctx, s.sdk, resp.ID()); err != nil {
+	if err := common.WaitFinishOperationWithTimeout(ctx, s.sdk, resp.ID(), 5*time.Minute); err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
