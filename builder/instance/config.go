@@ -15,6 +15,7 @@ import (
 type Config struct {
 	common.PackerConfig  `mapstructure:",squash"`
 	Comm                 communicator.Config               `mapstructure:",squash"`
+	APIEndpoint          string                            `mapstructure:"api_endpoint"`
 	ParentID             string                            `mapstructure:"parent_id"`
 	ServiceAccountConfig nebiuscommon.ServiceAccountConfig `mapstructure:"service_account"`
 	DiskConfig           nebiuscommon.DiskConfig           `mapstructure:"disk"`
@@ -58,6 +59,10 @@ func (c *Config) prepareSSH(ctx *interpolate.Context) []error {
 		return []error{fmt.Errorf("unsupported communicator type: %s", c.Comm.Type)}
 	}
 
+	if c.Comm.SSH.SSHUsername == "" {
+		return []error{fmt.Errorf("ssh_username must be set for SSH communicator")}
+	}
+
 	if c.Comm.SSH.SSHTemporaryKeyPairType != "" && c.Comm.SSHTemporaryKeyPairType != "rsa" && c.Comm.SSH.SSHTemporaryKeyPairType != "ed25519" {
 		return []error{fmt.Errorf("temporary_key_pair_type requires either rsa or ed25519 as its value")}
 	}
@@ -66,10 +71,6 @@ func (c *Config) prepareSSH(ctx *interpolate.Context) []error {
 		if c.Comm.SSHPrivateKeyFile == "" && !c.Comm.SSH.SSHAgentAuth {
 			return []error{fmt.Errorf("ssh_private_key_file must be provided or ssh_agent_auth enabled when ssh_keypair_name is specified")}
 		}
-	}
-
-	if c.Comm.SSH.SSHUsername == "" {
-		c.Comm.SSHUsername = "packer"
 	}
 
 	// If we are not given an explicit ssh_keypair_name or

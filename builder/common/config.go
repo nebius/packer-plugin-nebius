@@ -111,7 +111,8 @@ func (c *ImageConfig) Validate() error {
 		return fmt.Errorf("image.image_family_human_readable is required when image.image_family is set")
 	}
 
-	if !slices.Contains([]string{"", "arm64", "amd64"}, strings.ToLower(c.CPUArchitecture)) {
+	normalizedCPUArch := strings.ToLower(strings.TrimSpace(c.CPUArchitecture))
+	if !slices.Contains([]string{"", "arm64", "amd64"}, normalizedCPUArch) {
 		return fmt.Errorf("invalid image.cpu_architecture: %s. use one of: arm64, amd64", c.CPUArchitecture)
 	}
 

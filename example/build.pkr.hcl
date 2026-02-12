@@ -11,7 +11,9 @@ packer {
 }
 
 source "nebius-instance" "image-create" {
+  api_endpoint = "api.testing.nebius.cloud:443"
   communicator = "ssh"
+  ssh_username = "ubuntu"
   service_account {
     private_key_file_env = "NB_AUTHKEY_PRIVATE_PATH"
     public_key_id_env    = "NB_AUTHKEY_PUBLIC_ID"
@@ -34,8 +36,8 @@ source "nebius-instance" "image-create" {
     preset   = "4vcpu-16gb"
   }
   image {
-    name = "ubuntu24.04-driverless-0.0.4"
-    version = "0.0.4"
+    name = "ubuntu24.04-driverless-0.0.9"
+    version = "0.0.9"
     image_family = "ubuntu24.04-driverless-wolfwalker"
     cpu_architecture = "amd64"
     image_family_human_readable = "Ubuntu 24.04 Driverless"

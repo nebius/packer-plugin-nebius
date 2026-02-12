@@ -40,7 +40,7 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 		return nil, nil, multierror.Append(nil, errs...).ErrorOrNil()
 	}
 
-	b.sdk, err = nebiuscommon.NewSDK(context.Background(), b.config.ServiceAccountConfig, b.config.ParentID)
+	b.sdk, err = nebiuscommon.NewSDK(context.Background(), b.config.ServiceAccountConfig, b.config.ParentID, b.config.APIEndpoint)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -52,6 +52,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	ui.Message("Create resources...")
 	steps := []multistep.Step{
 		NewStepCreateDisk(b.sdk, b.config),
+		NewStepGetBaseImage(b.sdk, b.config),
 		NewStepFindNetwork(b.sdk, b.config),
 		&communicator.StepSSHKeyGen{
 			CommConf:            &b.config.Comm,
@@ -65,6 +66,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 			SSHConfig: b.config.Comm.SSHConfigFunc(),
 		},
 		new(commonsteps.StepProvision), // Ansible, etc. provisioning steps would go here
+		NewStepCleanupSSHKey(&b.config),
 		NewStepStopInstance(b.sdk),
 		NewStepCreateImage(b.sdk, b.config),
 	}
@@ -83,11 +85,18 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		return nil, err.(error)
 	}
 
+	var imageID string
+	if raw, ok := state.GetOk(stateImageID); ok {
+		if str, isStr := raw.(string); isStr {
+			imageID = str
+		}
+	}
+
 	artifact := &Artifact{
 		StateData: map[string]interface{}{
-			"image_id": state.Get(stateImageID).(string),
+			"image_id": imageID,
 		},
-		imageID: state.Get(stateImageID).(string),
+		imageID: imageID,
 	}
 	return artifact, nil
 }

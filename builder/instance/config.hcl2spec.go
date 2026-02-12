@@ -68,6 +68,7 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool                            `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool                            `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool                            `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
+	APIEndpoint               *string                          `mapstructure:"api_endpoint" cty:"api_endpoint" hcl:"api_endpoint"`
 	ParentID                  *string                          `mapstructure:"parent_id" cty:"parent_id" hcl:"parent_id"`
 	ServiceAccountConfig      *common.FlatServiceAccountConfig `mapstructure:"service_account" cty:"service_account" hcl:"service_account"`
 	DiskConfig                *common.FlatDiskConfig           `mapstructure:"disk" cty:"disk" hcl:"disk"`
@@ -146,6 +147,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ssl":                &hcldec.AttrSpec{Name: "winrm_use_ssl", Type: cty.Bool, Required: false},
 		"winrm_insecure":               &hcldec.AttrSpec{Name: "winrm_insecure", Type: cty.Bool, Required: false},
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
+		"api_endpoint":                 &hcldec.AttrSpec{Name: "api_endpoint", Type: cty.String, Required: false},
 		"parent_id":                    &hcldec.AttrSpec{Name: "parent_id", Type: cty.String, Required: false},
 		"service_account":              &hcldec.BlockSpec{TypeName: "service_account", Nested: hcldec.ObjectSpec((*common.FlatServiceAccountConfig)(nil).HCL2Spec())},
 		"disk":                         &hcldec.BlockSpec{TypeName: "disk", Nested: hcldec.ObjectSpec((*common.FlatDiskConfig)(nil).HCL2Spec())},
