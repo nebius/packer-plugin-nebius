@@ -13,18 +13,22 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func NewSDK(ctx context.Context, saConfig ServiceAccountConfig, parentID string) (*gosdk.SDK, error) {
-	sa, err := resolveServiceAccountFromEnv(ctx, saConfig)
+func NewSDK(ctx context.Context, saConfig ServiceAccountConfig, parentID string, apiEndpoint string) (*gosdk.SDK, error) {
+	sa, err := resolveServiceAccount(ctx, saConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve service account from env: %w", err)
 	}
 
-	sdk, err := gosdk.New(
-		ctx,
+	opts := []gosdk.Option{
 		gosdk.WithCredentials(gosdk.ServiceAccount(sa)),
-		gosdk.WithDomain("api.testing.nebius.cloud:443"), // TODO: remove when in production
 		gosdk.WithParentID(parentID),
-	)
+	}
+
+	if apiEndpoint != "" {
+		opts = append(opts, gosdk.WithDomain(apiEndpoint))
+	}
+
+	sdk, err := gosdk.New(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nebius sdk: %w", err)
 	}
@@ -66,7 +70,7 @@ func WaitFinishOperation(ctx context.Context, sdk *gosdk.SDK, operationID string
 	}
 }
 
-func resolveServiceAccountFromEnv(ctx context.Context, saConfig ServiceAccountConfig) (auth.ServiceAccount, error) {
+func resolveServiceAccount(ctx context.Context, saConfig ServiceAccountConfig) (auth.ServiceAccount, error) {
 	privateKeyFile := saConfig.PrivateKeyFile
 	if privateKeyFile == "" {
 		if privateKeyFile = os.Getenv(saConfig.PrivateKeyFileEnv); privateKeyFile == "" {

@@ -77,7 +77,7 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 					},
 				},
 			},
-			CloudInitUserData: s.BuildUserData(),
+			CloudInitUserData: cloudInitUserData,
 		},
 	}
 
@@ -149,11 +149,10 @@ func (s *StepCreateInstance) BuildUserData() string {
 users:
   - default
   - name: %s
-    sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     ssh_authorized_keys:
-      - %s packer-temporary-key
-`, s.config.Comm.SSH.SSHUsername, publicKey)
+      - %s %s
+`, s.config.Comm.SSH.SSHUsername, publicKey, s.config.Comm.SSH.SSHTemporaryKeyPairName)
 
 	return cloudInitUserData
 }

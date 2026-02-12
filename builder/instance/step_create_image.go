@@ -32,17 +32,32 @@ func (s *StepImageCreate) Run(ctx context.Context, state multistep.StateBag) mul
 	ui := state.Get("ui").(packer.Ui)
 	ui.Message("Image creation...")
 
+	labels := s.config.ImageConfig.Labels
+	if labels == nil {
+		labels = make(map[string]string)
+	}
+
+	if s.config.BaseImageConfig.ID != "" {
+		labels["based_on_image_id"] = state.Get(stateBaseImageID).(string)
+	} else {
+		labels["based_on_image_family"] = state.Get(stateBaseImageImageFamily).(string)
+		labels["based_on_image_version"] = state.Get(stateBaseImageVersion).(string)
+	}
+
 	diskID := state.Get(stateDiskID).(string)
 	req := &computev1.CreateImageRequest{
 		Metadata: &commonv1.ResourceMetadata{
 			Name:     s.config.ImageConfig.Name,
-			Labels:   s.config.ImageConfig.Labels,
+			Labels:   labels,
 			ParentId: s.config.ImageConfig.ParentID,
 		},
 		Spec: &computev1.ImageSpec{
-			ImageFamily:     s.config.ImageConfig.ImageFamily,
-			Source:          &computev1.ImageSpec_SourceDiskId{SourceDiskId: diskID},
-			CpuArchitecture: getCPUArchitecture(s.config.ImageConfig.CPUArchitecture),
+			ImageFamily: s.config.ImageConfig.ImageFamily,
+			Source:      &computev1.ImageSpec_SourceDiskId{SourceDiskId: diskID},
+			CpuArchitecture: getCPUArchitecture(
+				s.config.ImageConfig.CPUArchitecture,
+				state.Get(stateBaseImageArch).(computev1.ImageSpec_CPUArchitecture),
+			),
 		},
 	}
 
@@ -76,13 +91,17 @@ func (s *StepImageCreate) Run(ctx context.Context, state multistep.StateBag) mul
 
 func (s *StepImageCreate) Cleanup(_ multistep.StateBag) {}
 
-func getCPUArchitecture(cpuArchStr string) computev1.ImageSpec_CPUArchitecture {
-	switch strings.ToLower(cpuArchStr) {
-	case "amd64":
-		return computev1.ImageSpec_AMD64
-	case "arm64":
-		return computev1.ImageSpec_ARM64
-	default:
-		return computev1.ImageSpec_UNSPECIFIED
+func getCPUArchitecture(providedCPUArch string, baseImageCPUArch computev1.ImageSpec_CPUArchitecture) computev1.ImageSpec_CPUArchitecture {
+	if baseImageCPUArch != computev1.ImageSpec_UNSPECIFIED {
+		return baseImageCPUArch
 	}
+
+	normalizedProvidedCPUArch := strings.ToLower(strings.TrimSpace(providedCPUArch))
+	if normalizedProvidedCPUArch == "amd64" {
+		return computev1.ImageSpec_AMD64
+	} else if normalizedProvidedCPUArch == "arm64" {
+		return computev1.ImageSpec_ARM64
+	}
+
+	return computev1.ImageSpec_UNSPECIFIED
 }
