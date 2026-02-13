@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/nebius/gosdk"
@@ -16,7 +15,7 @@ import (
 func NewSDK(ctx context.Context, saConfig ServiceAccountConfig, parentID string, apiEndpoint string) (*gosdk.SDK, error) {
 	sa, err := resolveServiceAccount(ctx, saConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to resolve service account from env: %w", err)
+		return nil, fmt.Errorf("failed to resolve service account: %w", err)
 	}
 
 	opts := []gosdk.Option{
@@ -71,28 +70,12 @@ func WaitFinishOperation(ctx context.Context, sdk *gosdk.SDK, operationID string
 }
 
 func resolveServiceAccount(ctx context.Context, saConfig ServiceAccountConfig) (auth.ServiceAccount, error) {
-	privateKeyFile := saConfig.PrivateKeyFile
-	if privateKeyFile == "" {
-		if privateKeyFile = os.Getenv(saConfig.PrivateKeyFileEnv); privateKeyFile == "" {
-			return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.PrivateKeyFileEnv)
-		}
-	}
-
-	publicKeyID := saConfig.PublicKeyID
-	if publicKeyID == "" {
-		if publicKeyID = os.Getenv(saConfig.PublicKeyIDEnv); publicKeyID == "" {
-			return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.PublicKeyIDEnv)
-		}
-	}
-
-	accountID := saConfig.AccountID
-	if accountID == "" {
-		if accountID = os.Getenv(saConfig.AccountIDEnv); accountID == "" {
-			return auth.ServiceAccount{}, fmt.Errorf("environment variable %s is not set", saConfig.AccountIDEnv)
-		}
-	}
-
-	sa, err := auth.NewPrivateKeyFileParser(nil, privateKeyFile, publicKeyID, accountID).ServiceAccount(ctx)
+	sa, err := auth.NewPrivateKeyFileParser(
+		nil,
+		saConfig.PrivateKeyFile,
+		saConfig.PublicKeyID,
+		saConfig.AccountID,
+	).ServiceAccount(ctx)
 	if err != nil {
 		return auth.ServiceAccount{}, fmt.Errorf("failed to parse service account key: %w", err)
 	}

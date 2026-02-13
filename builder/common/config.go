@@ -8,23 +8,20 @@ import (
 )
 
 type ServiceAccountConfig struct {
-	PrivateKeyFileEnv string `mapstructure:"private_key_file_env"`
-	PublicKeyIDEnv    string `mapstructure:"public_key_id_env"`
-	AccountIDEnv      string `mapstructure:"account_id_env"`
-	PrivateKeyFile    string `mapstructure:"private_key_file"`
-	PublicKeyID       string `mapstructure:"public_key_id"`
-	AccountID         string `mapstructure:"account_id"`
+	PrivateKeyFile string `mapstructure:"private_key_file"`
+	PublicKeyID    string `mapstructure:"public_key_id"`
+	AccountID      string `mapstructure:"account_id"`
 }
 
 func (c *ServiceAccountConfig) Validate() error {
-	if c.PrivateKeyFileEnv == "" && c.PrivateKeyFile == "" {
-		return fmt.Errorf("either service_account.private_key_file_env or service_account.private_key_file must be set")
+	if c.PrivateKeyFile == "" {
+		return fmt.Errorf("service_account.private_key_file must be set")
 	}
-	if c.PublicKeyIDEnv == "" && c.PublicKeyID == "" {
-		return fmt.Errorf("either service_account.public_key_id_env or service_account.public_key_id must be set")
+	if c.PublicKeyID == "" {
+		return fmt.Errorf("service_account.public_key_id must be set")
 	}
-	if c.AccountIDEnv == "" && c.AccountID == "" {
-		return fmt.Errorf("either service_account.account_id_env or service_account.account_id must be set")
+	if c.AccountID == "" {
+		return fmt.Errorf("service_account.account_id must be set")
 	}
 	return nil
 }
