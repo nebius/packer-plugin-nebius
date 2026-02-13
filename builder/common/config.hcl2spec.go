@@ -151,12 +151,9 @@ func (*FlatNetworkConfig) HCL2Spec() map[string]hcldec.Spec {
 // FlatServiceAccountConfig is an auto-generated flat version of ServiceAccountConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatServiceAccountConfig struct {
-	PrivateKeyFileEnv *string `mapstructure:"private_key_file_env" cty:"private_key_file_env" hcl:"private_key_file_env"`
-	PublicKeyIDEnv    *string `mapstructure:"public_key_id_env" cty:"public_key_id_env" hcl:"public_key_id_env"`
-	AccountIDEnv      *string `mapstructure:"account_id_env" cty:"account_id_env" hcl:"account_id_env"`
-	PrivateKeyFile    *string `mapstructure:"private_key_file" cty:"private_key_file" hcl:"private_key_file"`
-	PublicKeyID       *string `mapstructure:"public_key_id" cty:"public_key_id" hcl:"public_key_id"`
-	AccountID         *string `mapstructure:"account_id" cty:"account_id" hcl:"account_id"`
+	PrivateKeyFile *string `mapstructure:"private_key_file" cty:"private_key_file" hcl:"private_key_file"`
+	PublicKeyID    *string `mapstructure:"public_key_id" cty:"public_key_id" hcl:"public_key_id"`
+	AccountID      *string `mapstructure:"account_id" cty:"account_id" hcl:"account_id"`
 }
 
 // FlatMapstructure returns a new FlatServiceAccountConfig.
@@ -171,12 +168,9 @@ func (*ServiceAccountConfig) FlatMapstructure() interface{ HCL2Spec() map[string
 // The decoded values from this spec will then be applied to a FlatServiceAccountConfig.
 func (*FlatServiceAccountConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"private_key_file_env": &hcldec.AttrSpec{Name: "private_key_file_env", Type: cty.String, Required: false},
-		"public_key_id_env":    &hcldec.AttrSpec{Name: "public_key_id_env", Type: cty.String, Required: false},
-		"account_id_env":       &hcldec.AttrSpec{Name: "account_id_env", Type: cty.String, Required: false},
-		"private_key_file":     &hcldec.AttrSpec{Name: "private_key_file", Type: cty.String, Required: false},
-		"public_key_id":        &hcldec.AttrSpec{Name: "public_key_id", Type: cty.String, Required: false},
-		"account_id":           &hcldec.AttrSpec{Name: "account_id", Type: cty.String, Required: false},
+		"private_key_file": &hcldec.AttrSpec{Name: "private_key_file", Type: cty.String, Required: false},
+		"public_key_id":    &hcldec.AttrSpec{Name: "public_key_id", Type: cty.String, Required: false},
+		"account_id":       &hcldec.AttrSpec{Name: "account_id", Type: cty.String, Required: false},
 	}
 	return s
 }
