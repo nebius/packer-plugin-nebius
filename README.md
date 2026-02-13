@@ -47,5 +47,7 @@ go build -ldflags="-X github.com/hashicorp/packer-plugin-nebius/version.VersionP
 ## Testing
 
 ```sh
-PACKER_ACC=1 go test -count 1 -v ./... -timeout=120m
+cp scripts/envs.example.sh scripts/envs.sh
+# change envs in envs.sh
+sh ./scripts/run-acc-image-test.sh
 ```
