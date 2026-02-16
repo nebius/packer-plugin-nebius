@@ -1,6 +1,6 @@
-Type: `nebius-instance`
+Type: `nebius-image`
 
-The Nebius instance builder creates a VM from a base image, provisions it over SSH,
+The Nebius image builder creates a VM from a base image, provisions it over SSH,
 and publishes a new image.
 
 ## Required
@@ -47,7 +47,7 @@ packer {
   }
 }
 
-source "nebius-instance" "image" {
+source "nebius-image" "image" {
   communicator = "ssh"
   ssh_username = "ubuntu"
 
@@ -86,6 +86,6 @@ source "nebius-instance" "image" {
 }
 
 build {
-  sources = ["source.nebius-instance.image"]
+  sources = ["source.nebius-image.image"]
 }
 ```
