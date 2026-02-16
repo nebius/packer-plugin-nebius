@@ -47,7 +47,7 @@ packer {
   }
 }
 
-source "nebius-image" "image" {
+source "nebius-image" "ubuntu2404-driverless" {
   communicator = "ssh"
   ssh_username = "ubuntu"
 
@@ -86,6 +86,6 @@ source "nebius-image" "image" {
 }
 
 build {
-  sources = ["source.nebius-image.image"]
+  sources = ["source.nebius-image.ubuntu2404-driverless"]
 }
 ```
