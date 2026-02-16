@@ -1,48 +1,88 @@
-  Include a short description about the builder. This is a good place
-  to call out what the builder does, and any requirements for the given
-  builder environment. See https://www.packer.io/docs/builder/null
--->
+and publishes a new image.
 
-The scaffolding builder is used to create endless Packer plugins using
-a consistent plugin structure.
+## Required
 
+- `parent_id` (string) - Project for all created resources.
+- `service_account.private_key_file` (string) - Path to the service account private key file.
+- `service_account.public_key_id` (string) - Service account public key ID.
+- `service_account.account_id` (string) - Service account ID.
+- `base_image.id` or `base_image.family` (string) - Source image ID or family.
+- `disk.size_gibibytes` (number) - Disk size, minimum 10 GiB.
+- `instance.platform` (string) - Nebius platform name.
+- `instance.preset` (string) - Nebius preset name.
+- `image.name` (string) - Result image name.
+- `ssh_username` (string) - SSH user for provisioning; only the SSH communicator is supported.
 
-<!-- Builder Configuration Fields -->
+## Optional
 
-**Required**
+- `api_endpoint` (string) - Nebius API endpoint (default is the SDK default).
+- `communicator` (string) - Must be `ssh` (default).
+- `disk.type` (string) - Disk type (e.g. `network_ssd`).
+- `base_image.parent_id` (string) - Parent for the base image family lookup (default public-images project).
+- `network.subnet_id` (string) - The ID of an existing subnet that will be used to create the instance. If not provided, the plugin will attempt to find the project's default network.
+- `network.associate_public_ip_address` (bool) - Allocate a public IP.
+- `image.labels` (map[string]string) - Labels to apply to the image.
+- `image.image_family` (string) - Image family name.
+- `image.version` (string) - Image version (required if `image_family` is set).
+- `image.image_family_human_readable` (string) - Human-readable family name (required if `image_family` is set).
+- `image.cpu_architecture` (string) - `amd64` or `arm64` (using if base image doesn't have arch).
+- `image.parent_id` (string) - Parent for the image (default is the root parent_id).
+- `image.unsupported_platforms` (map[string]string) - Unsupported platforms for image.
+- `image.recommended_platforms` (list(string)) - Recommended platforms for image.
+- SSH communicator options such as `ssh_private_key_file`, `ssh_agent_auth`,
+  `temporary_key_pair_name`, and `temporary_key_pair_type`.
 
-- `mock` (string) - The name of the mock to use for the Scaffolding API.
-
-
-<!--
-  Optional Configuration Fields
-
-  Configuration options that are not required or have reasonable defaults
-  should be listed under the optionals section. Defaults values should be
-  noted in the description of the field
--->
-
-**Optional**
-
-- `mock_api_url` (string) - The Scaffolding API endpoint to connect to.
-  Defaults to https://example.com
-
-
-
-<!--
-  A basic example on the usage of the builder. Multiple examples
-  can be provided to highlight various build configurations.
-
--->
-### Example Usage
-
+## Example Usage
 
 ```hcl
- source "scaffolding" "example" {
-   mock = "bird"
- }
+packer {
+  required_plugins {
+    nebius = {
+      source  = "gitlab.nebius.dev/project-compute/nebius"
+      version = ">= 0.0.1"
+    }
+  }
+}
 
- build {
-   sources = ["source.scaffolding.example"]
- }
+source "nebius-instance" "image" {
+  communicator = "ssh"
+  ssh_username = "ubuntu"
+
+  service_account {
+    private_key_file = var.nb_private_key_file
+    public_key_id    = var.nb_public_key_id
+    account_id       = var.nb_sa_id
+  }
+
+  parent_id = "project-xxxxxxxx"
+
+  base_image {
+    family = "ubuntu24.04-driverless"
+  }
+
+  disk {
+    size_gibibytes = 10
+  }
+
+  network {
+    associate_public_ip_address = true
+  }
+
+  instance {
+    platform = "cpu-d3"
+    preset   = "4vcpu-16gb"
+  }
+
+  image {
+    name                       = "ubuntu24.04-driverless-0.0.9"
+    version                    = "0.0.9"
+    image_family               = "ubuntu24.04-driverless"
+    image_family_human_readable = "Ubuntu 24.04 Driverless"
+    cpu_architecture           = "amd64"
+  }
+}
+
+build {
+  sources = ["source.nebius-instance.image"]
+}
 ```
