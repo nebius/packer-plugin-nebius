@@ -12,15 +12,19 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func NewSDK(ctx context.Context, saConfig ServiceAccountConfig, parentID string, apiEndpoint string) (*gosdk.SDK, error) {
-	sa, err := resolveServiceAccount(ctx, saConfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve service account: %w", err)
+func NewSDK(ctx context.Context, saConfig ServiceAccountConfig, parentID string, apiEndpoint string, token string) (*gosdk.SDK, error) {
+	opts := []gosdk.Option{
+		gosdk.WithParentID(parentID),
 	}
 
-	opts := []gosdk.Option{
-		gosdk.WithCredentials(gosdk.ServiceAccount(sa)),
-		gosdk.WithParentID(parentID),
+	if token != "" {
+		opts = append(opts, gosdk.WithCredentials(gosdk.IAMToken(token)))
+	} else {
+		sa, err := resolveServiceAccount(ctx, saConfig)
+		if err != nil {
+			return nil, fmt.Errorf("failed to resolve service account: %w", err)
+		}
+		opts = append(opts, gosdk.WithCredentials(gosdk.ServiceAccount(sa)))
 	}
 
 	if apiEndpoint != "" {

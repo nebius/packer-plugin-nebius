@@ -17,6 +17,7 @@ type Config struct {
 	Comm                 communicator.Config               `mapstructure:",squash"`
 	APIEndpoint          string                            `mapstructure:"api_endpoint"`
 	ParentID             string                            `mapstructure:"parent_id"`
+	Token                string                            `mapstructure:"token"`
 	ServiceAccountConfig nebiuscommon.ServiceAccountConfig `mapstructure:"service_account"`
 	DiskConfig           nebiuscommon.DiskConfig           `mapstructure:"disk"`
 	BaseImageConfig      nebiuscommon.BaseImageConfig      `mapstructure:"base_image"`
@@ -32,8 +33,10 @@ func (c *Config) validate() []error {
 		errors = append(errors, fmt.Errorf("parent_id must be set"))
 	}
 
-	if err := c.ServiceAccountConfig.Validate(); err != nil {
-		errors = append(errors, err)
+	if c.Token == "" {
+		if err := c.ServiceAccountConfig.Validate(); err != nil {
+			errors = append(errors, err)
+		}
 	}
 	if err := c.DiskConfig.Validate(); err != nil {
 		errors = append(errors, err)
