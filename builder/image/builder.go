@@ -40,7 +40,13 @@ func (b *Builder) Prepare(raws ...interface{}) (generatedVars []string, warnings
 		return nil, nil, multierror.Append(nil, errs...).ErrorOrNil()
 	}
 
-	b.sdk, err = nebiuscommon.NewSDK(context.Background(), b.config.ServiceAccountConfig, b.config.ParentID, b.config.APIEndpoint)
+	b.sdk, err = nebiuscommon.NewSDK(
+		context.Background(),
+		b.config.ServiceAccountConfig,
+		b.config.ParentID,
+		b.config.APIEndpoint,
+		b.config.Token,
+	)
 	if err != nil {
 		return nil, nil, err
 	}

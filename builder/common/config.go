@@ -15,13 +15,13 @@ type ServiceAccountConfig struct {
 
 func (c *ServiceAccountConfig) Validate() error {
 	if c.PrivateKeyFile == "" {
-		return fmt.Errorf("service_account.private_key_file must be set")
+		return fmt.Errorf("service_account.private_key_file must be set if token is not provided")
 	}
 	if c.PublicKeyID == "" {
-		return fmt.Errorf("service_account.public_key_id must be set")
+		return fmt.Errorf("service_account.public_key_id must be set if token is not provided")
 	}
 	if c.AccountID == "" {
-		return fmt.Errorf("service_account.account_id must be set")
+		return fmt.Errorf("service_account.account_id must be set if token is not provided")
 	}
 	return nil
 }

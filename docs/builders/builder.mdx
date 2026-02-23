@@ -6,9 +6,10 @@ and publishes a new image.
 ## Required
 
 - `parent_id` (string) - Project for all created resources.
-- `service_account.private_key_file` (string) - Path to the service account private key file.
-- `service_account.public_key_id` (string) - Service account public key ID.
-- `service_account.account_id` (string) - Service account ID.
+- `token` (string) - IAM Token. If not set, all `service_account.*` fields below are required.
+- `service_account.private_key_file` (string) - Path to the service account private key file (required if `token` is not set).
+- `service_account.public_key_id` (string) - Service account public key ID (required if `token` is not set).
+- `service_account.account_id` (string) - Service account ID (required if `token` is not set).
 - `base_image.id` or `base_image.family` (string) - Source image ID or family.
 - `disk.size_gibibytes` (number) - Disk size, minimum 10 GiB.
 - `instance.platform` (string) - Nebius platform name.
