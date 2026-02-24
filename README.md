@@ -50,3 +50,8 @@ cp scripts/envs.example.sh scripts/envs.sh
 # change envs in envs.sh
 sh ./scripts/run-acc-image-test.sh
 ```
+
+## Disclaimer
+
+packer-plugin-nebius is not created nor endorsed by HashiCorp or IBM Corporation.
+Nebius B.V. is not affiliated with HashiCorp or IBM Corporation.
