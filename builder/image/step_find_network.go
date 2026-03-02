@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/nebius/gosdk"
 	v1 "github.com/nebius/gosdk/proto/nebius/vpc/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const stateSubnetID = "subnet_id"
@@ -35,9 +37,7 @@ func (s *StepFindNetwork) Run(ctx context.Context, state multistep.StateBag) mul
 	ui.Message("Subnet ID not specified, searching for default network...")
 
 	//try to find default network
-	getNetworkResp, err := s.sdk.Services().VPC().V1().Network().GetByName(ctx, &v1.GetNetworkByNameRequest{
-		Name: "default",
-	})
+	getNetworkResp, err := s.getDefaultNetwork(ctx)
 	if err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -73,3 +73,20 @@ func (s *StepFindNetwork) Run(ctx context.Context, state multistep.StateBag) mul
 }
 
 func (s *StepFindNetwork) Cleanup(_ multistep.StateBag) {}
+
+func (s *StepFindNetwork) getDefaultNetwork(ctx context.Context) (*v1.Network, error) {
+	getNetworkResp, err := s.sdk.Services().VPC().V1().Network().GetByName(ctx, &v1.GetNetworkByNameRequest{
+		Name: "default",
+	})
+	if err == nil {
+		return getNetworkResp, nil
+	}
+
+	if status.Code(err) == codes.NotFound {
+		return s.sdk.Services().VPC().V1().Network().GetByName(ctx, &v1.GetNetworkByNameRequest{
+			Name: "default-network",
+		})
+	}
+
+	return nil, err
+}
