@@ -46,9 +46,7 @@ go build -ldflags="-X github.com/hashicorp/packer-plugin-nebius/version.VersionP
 ## Testing
 
 ```sh
-cp scripts/envs.example.sh scripts/envs.sh
-# change envs in envs.sh
-sh ./scripts/run-acc-image-test.sh
+PKR_VAR_nb_parent_id=project_id PKR_VAR_nb_token=token make testacc
 ```
 
 ## Disclaimer
