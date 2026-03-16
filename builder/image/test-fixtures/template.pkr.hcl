@@ -10,74 +10,27 @@ packer {
   }
 }
 
-variable "nb_private_key_file" {
-  type = string
-}
-
-variable "nb_public_key_id" {
-  type = string
-}
-
-variable "nb_sa_id" {
-  type = string
-}
-
 variable "nb_parent_id" {
   type = string
 }
 
-variable "nb_base_image_family" {
+variable "nb_token" {
   type = string
 }
 
-variable "nb_platform" {
-  type = string
-}
-
-variable "nb_preset" {
-  type = string
-}
-
-variable "nb_image_name" {
-  type = string
-}
-
-variable "nb_image_version" {
-  type = string
-}
-
-variable "nb_image_family" {
-  type = string
-}
-
-variable "nb_image_family_human_readable" {
-  type = string
-}
-
-variable "nb_cpu_architecture" {
-  type = string
-}
-
-variable "nb_api_endpoint" {
-  type    = string
-  default = ""
+locals {
+  nb_image_name = "acc-${uuidv4()}"
 }
 
 source "nebius-image" "acceptance" {
-  api_endpoint = var.nb_api_endpoint
+  api_endpoint = "api.testing.nebius.cloud:443"
   communicator = "ssh"
   ssh_username = "ubuntu"
-
-  service_account {
-    private_key_file = var.nb_private_key_file
-    public_key_id    = var.nb_public_key_id
-    account_id       = var.nb_sa_id
-  }
-
   parent_id = var.nb_parent_id
+  token = var.nb_token
 
   base_image {
-    family = var.nb_base_image_family
+    family = "ubuntu24.04-driverless"
   }
 
   disk {
@@ -89,19 +42,18 @@ source "nebius-image" "acceptance" {
   }
 
   instance {
-    platform = var.nb_platform
-    preset   = var.nb_preset
+    platform = "cpu-d3"
+    preset   = "4vcpu-16gb"
   }
 
   image {
-    name                        = var.nb_image_name
-    version                     = var.nb_image_version
-    image_family                = var.nb_image_family
-    image_family_human_readable = var.nb_image_family_human_readable
-    cpu_architecture            = var.nb_cpu_architecture
+    name = local.nb_image_name
   }
 }
 
 build {
   sources = ["source.nebius-image.acceptance"]
+  provisioner "ansible" {
+    playbook_file = "./test-fixtures/provision.yml"
+  }
 }

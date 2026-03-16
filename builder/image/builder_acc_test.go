@@ -20,18 +20,8 @@ import (
 var testBuilderHCL2Basic string
 
 var requiredAccEnv = []string{
-	"PKR_VAR_nb_private_key_file",
-	"PKR_VAR_nb_public_key_id",
-	"PKR_VAR_nb_sa_id",
 	"PKR_VAR_nb_parent_id",
-	"PKR_VAR_nb_base_image_family",
-	"PKR_VAR_nb_platform",
-	"PKR_VAR_nb_preset",
-	"PKR_VAR_nb_image_name",
-	"PKR_VAR_nb_image_version",
-	"PKR_VAR_nb_image_family",
-	"PKR_VAR_nb_image_family_human_readable",
-	"PKR_VAR_nb_cpu_architecture",
+	"PKR_VAR_nb_token",
 }
 
 func requireAccEnv() error {
@@ -78,12 +68,36 @@ func TestAccImageBuilder(t *testing.T) {
 			}
 			logsString := string(logsBytes)
 
-			expectedLog := "nebius-image.acceptance: Image creation..."
-			if matched, _ := regexp.MatchString(expectedLog+".*", logsString); !matched {
-				t.Fatalf("logs don't contain expected image creation log: %q", logsString)
+			expectedPatterns := []string{
+				`Disk .* creation completed`,
+				`Subnet ID not specified, searching for default network...`,
+				`Found default subnet with ID: .*`,
+				`Creating temporary ED25519 SSH key for instance...`,
+				`Instance .* creation completed`,
+				`IP address is .*`,
+				`Using SSH communicator to connect: .*`,
+				`Connected to SSH!`,
+				`TASK \[Ensure that net-tools is installed\]`,
+				`Cleaning temporary SSH key from guest...`,
+				`Temporary SSH key cleaned`,
+				`Instance .* stopped`,
+				`Image .* created successfully`,
+				`Instance .* deletion completed`,
+				`Disk .* will be deleted in .* operation\.`,
+				`Build 'nebius-image\.acceptance' finished after .*`,
 			}
+
+			for _, pattern := range expectedPatterns {
+				re := regexp.MustCompile(pattern)
+				matches := re.FindStringSubmatch(logsString)
+				if matches == nil {
+					t.Fatalf("logs don't contain expected pattern %q", pattern)
+				}
+			}
+
 			return nil
 		},
 	}
+
 	acctest.TestPlugin(t, testCase)
 }
