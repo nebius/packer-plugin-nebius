@@ -20,8 +20,10 @@ import (
 var testBuilderHCL2Basic string
 
 var requiredAccEnv = []string{
-	"PKR_VAR_nb_parent_id",
-	"PKR_VAR_nb_token",
+	"PKR_VAR_NB_PARENT_ID",
+	"PKR_VAR_NB_PUB_KEY",
+	"PKR_VAR_NB_SA",
+	"PKR_VAR_NB_PRIVATE_KEY",
 }
 
 func requireAccEnv() error {

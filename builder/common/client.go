@@ -74,12 +74,23 @@ func WaitFinishOperation(ctx context.Context, sdk *gosdk.SDK, operationID string
 }
 
 func resolveServiceAccount(ctx context.Context, saConfig ServiceAccountConfig) (auth.ServiceAccount, error) {
-	sa, err := auth.NewPrivateKeyFileParser(
-		nil,
-		saConfig.PrivateKeyFile,
-		saConfig.PublicKeyID,
-		saConfig.AccountID,
-	).ServiceAccount(ctx)
+	var parser auth.ServiceAccountReader
+	if saConfig.PrivateKey != "" {
+		parser = auth.NewPrivateKeyParser(
+			[]byte(saConfig.PrivateKey),
+			saConfig.PublicKeyID,
+			saConfig.AccountID,
+		)
+	} else {
+		parser = auth.NewPrivateKeyFileParser(
+			nil,
+			saConfig.PrivateKeyFile,
+			saConfig.PublicKeyID,
+			saConfig.AccountID,
+		)
+	}
+
+	sa, err := parser.ServiceAccount(ctx)
 	if err != nil {
 		return auth.ServiceAccount{}, fmt.Errorf("failed to parse service account key: %w", err)
 	}

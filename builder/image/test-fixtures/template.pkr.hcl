@@ -10,11 +10,19 @@ packer {
   }
 }
 
-variable "nb_parent_id" {
+variable "NB_PARENT_ID" {
   type = string
 }
 
-variable "nb_token" {
+variable "NB_PUB_KEY" {
+  type = string
+}
+
+variable "NB_SA" {
+  type = string
+}
+
+variable "NB_PRIVATE_KEY" {
   type = string
 }
 
@@ -23,11 +31,15 @@ locals {
 }
 
 source "nebius-image" "acceptance" {
-  api_endpoint = "api.testing.nebius.cloud:443"
   communicator = "ssh"
   ssh_username = "ubuntu"
-  parent_id = var.nb_parent_id
-  token = var.nb_token
+  parent_id = var.NB_PARENT_ID
+
+  service_account {
+    account_id = var.NB_SA
+    public_key_id = var.NB_PUB_KEY
+    private_key = var.NB_PRIVATE_KEY
+  }
 
   base_image {
     family = "ubuntu24.04-driverless"

@@ -1,0 +1,52 @@
+name: acceptance tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testacc:
+    name: run make testacc
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PKR_VAR_NB_PARENT_ID: ${{ vars.PKR_VAR_NB_PARENT_ID }}
+      PKR_VAR_NB_SA: ${{ vars.PKR_VAR_NB_SA }}
+      PKR_VAR_NB_PUB_KEY: ${{ vars.PKR_VAR_NB_PUB_KEY }}
+      PKR_VAR_NB_PRIVATE_KEY: ${{ secrets.PKR_VAR_NB_PRIVATE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: .go-version
+          cache: true
+
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@v3
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Validate required secrets
+        run: |
+          test -n "$PKR_VAR_NB_PARENT_ID"
+          test -n "$PKR_VAR_NB_SA"
+          test -n "$PKR_VAR_NB_PUB_KEY"
+          test -n "$PKR_VAR_NB_PRIVATE_KEY"
+
+      - name: Run acceptance tests
+        run: make testacc

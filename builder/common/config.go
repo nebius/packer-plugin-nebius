@@ -9,13 +9,14 @@ import (
 
 type ServiceAccountConfig struct {
 	PrivateKeyFile string `mapstructure:"private_key_file"`
+	PrivateKey     string `mapstructure:"private_key"`
 	PublicKeyID    string `mapstructure:"public_key_id"`
 	AccountID      string `mapstructure:"account_id"`
 }
 
 func (c *ServiceAccountConfig) Validate() error {
-	if c.PrivateKeyFile == "" {
-		return fmt.Errorf("service_account.private_key_file must be set if token is not provided")
+	if c.PrivateKeyFile == "" && c.PrivateKey == "" {
+		return fmt.Errorf("service_account: private_key or private_key_file is required")
 	}
 	if c.PublicKeyID == "" {
 		return fmt.Errorf("service_account.public_key_id must be set if token is not provided")
