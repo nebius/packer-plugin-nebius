@@ -24,6 +24,7 @@ var requiredAccEnv = []string{
 	"PKR_VAR_NB_PUB_KEY",
 	"PKR_VAR_NB_SA",
 	"PKR_VAR_NB_PRIVATE_KEY",
+	"PKR_VAR_NB_PUBLIC_ALLOCATION_ID",
 }
 
 func requireAccEnv() error {

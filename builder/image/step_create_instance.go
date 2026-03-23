@@ -38,8 +38,12 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 	subnetID := state.Get(stateSubnetID).(string)
 
 	var publicIPAddress *computev1.PublicIPAddress
-	if s.config.NetworkConfig.AssociatePublicIpAddress {
-		publicIPAddress = &computev1.PublicIPAddress{}
+	if s.config.NetworkConfig.AssociatePublicIpAddress || s.config.NetworkConfig.PublicAllocationID != "" {
+		publicIPAddress = &computev1.PublicIPAddress{
+			Allocation: &computev1.PublicIPAddress_AllocationId{
+				AllocationId: s.config.NetworkConfig.PublicAllocationID,
+			},
+		}
 	}
 
 	cloudInitUserData := s.BuildUserData()

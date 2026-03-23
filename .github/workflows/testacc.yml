@@ -22,6 +22,7 @@ jobs:
       PKR_VAR_NB_PARENT_ID: ${{ vars.PKR_VAR_NB_PARENT_ID }}
       PKR_VAR_NB_SA: ${{ vars.PKR_VAR_NB_SA }}
       PKR_VAR_NB_PUB_KEY: ${{ vars.PKR_VAR_NB_PUB_KEY }}
+      PKR_VAR_NB_PUBLIC_ALLOCATION_ID: ${{ vars.PKR_VAR_NB_PUBLIC_ALLOCATION_ID }}
       PKR_VAR_NB_PRIVATE_KEY: ${{ secrets.PKR_VAR_NB_PRIVATE_KEY }}
     steps:
       - name: Checkout
@@ -36,6 +37,9 @@ jobs:
       - name: Set up Packer
         uses: hashicorp/setup-packer@v3
 
+      - name: Install Packer ansible plugin
+        run: packer plugins install github.com/hashicorp/ansible
+
       - name: Install Ansible
         run: |
           sudo apt-get update
@@ -47,6 +51,15 @@ jobs:
           test -n "$PKR_VAR_NB_SA"
           test -n "$PKR_VAR_NB_PUB_KEY"
           test -n "$PKR_VAR_NB_PRIVATE_KEY"
+          test -n "$PKR_VAR_NB_PUBLIC_ALLOCATION_ID"
 
       - name: Run acceptance tests
         run: make testacc
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-logs
+          path: |
+            **/packer_log*.txt

@@ -27,10 +27,10 @@ packer plugins install --path packer-plugin-nebius github.com/nebius/nebius
 
 Key settings:
 - `parent_id` - Project or folder to place resources in.
-- `service_account` - `private_key_file`, `public_key_id`, `account_id`.
+- `service_account` - `public_key_id`, `account_id`, and one of `private_key` or `private_key_file`.
 - `base_image` - `id` or `family`.
 - `disk` - `size_gibibytes` (minimum 10), optional `type`.
-- `network` - `associate_public_ip_address` (optional).
+- `network` - `associate_public_ip_address` (optional, auto allocation) or `public_allocation_id` (optional, preallocated public ID).
 - `instance` - `platform` and `preset`.
 - `image` - `name` (required), optional family metadata.
 - `ssh_username` - required; only `ssh` communicator is supported.

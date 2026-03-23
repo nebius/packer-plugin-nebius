@@ -42,7 +42,7 @@ func (s *StepGetInstanceIP) Run(ctx context.Context, state multistep.StateBag) m
 	}
 
 	ipAddress := ""
-	if s.config.NetworkConfig.AssociatePublicIpAddress {
+	if s.config.NetworkConfig.AssociatePublicIpAddress || s.config.NetworkConfig.PublicAllocationID != "" {
 		ipAddress = instance.GetStatus().GetNetworkInterfaces()[0].GetPublicIpAddress().GetAddress()
 	} else {
 		ui.Message("associate_public_ip_address is not set, using private IP address")
