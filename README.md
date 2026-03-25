@@ -1,3 +1,5 @@
+[![acceptance tests](https://github.com/nebius/packer-plugin-nebius/actions/workflows/testacc.yml/badge.svg)](https://github.com/nebius/packer-plugin-nebius/actions/workflows/testacc.yml)
+
 # Packer Plugin Nebius
 
 Packer Plugin Nebius provides a Nebius Compute builder for creating custom images from base images. The plugin is designed to integrate cleanly into standard Packer workflows via `packer init` and the required plugin block. Configuration focuses on explicit control of base images, instance shape, and image metadata. The builder is optimized for repeatable image pipelines in Nebius projects. Example usage is included to help you get started quickly. © Nebius BV, 2026.
