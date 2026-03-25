@@ -4,53 +4,55 @@
 package image
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"regexp"
-	"strings"
 	"testing"
 
+	"github.com/hashicorp/packer-plugin-nebius/builder/common"
 	"github.com/hashicorp/packer-plugin-sdk/acctest"
+	"github.com/nebius/gosdk"
+	v1 "github.com/nebius/gosdk/proto/nebius/compute/v1"
 )
 
 //go:embed test-fixtures/template.pkr.hcl
-var testBuilderHCL2Basic string
+var imageBuilderTemplate string
 
-var requiredAccEnv = []string{
-	"PKR_VAR_NB_PARENT_ID",
-	"PKR_VAR_NB_PUB_KEY",
-	"PKR_VAR_NB_SA",
-	"PKR_VAR_NB_PRIVATE_KEY",
-	"PKR_VAR_NB_PUBLIC_ALLOCATION_ID",
-}
-
-func requireAccEnv() error {
-	missing := make([]string, 0, len(requiredAccEnv))
-	for _, key := range requiredAccEnv {
-		if os.Getenv(key) == "" {
-			missing = append(missing, key)
-		}
-	}
-	if len(missing) > 0 {
-		return fmt.Errorf("missing required env vars: %s", strings.Join(missing, ", "))
-	}
-	return nil
-}
+var sdk *gosdk.SDK
+var parentID, publicKey, privateKey, sa string
 
 // Run with: PACKER_ACC=1 go test -count 1 -v ./builder/image/builder_acc_test.go -timeout=120m
 func TestAccImageBuilder(t *testing.T) {
 	testCase := &acctest.PluginTestCase{
 		Name: "nebius_image_builder_basic_test",
 		Setup: func() error {
-			return requireAccEnv()
-		},
-		Teardown: func() error {
+			prepareEnvs()
+
+			var err error
+			sdk, err = common.NewSDK(
+				t.Context(),
+				common.ServiceAccountConfig{
+					PrivateKey:  privateKey,
+					PublicKeyID: publicKey,
+					AccountID:   sa,
+				},
+				parentID,
+				"",
+				"",
+			)
+
+			if err != nil {
+				return fmt.Errorf("error creating sdk: %w", err)
+			}
+
 			return nil
 		},
-		Template: testBuilderHCL2Basic,
+		Teardown: func() error { return teardown(t.Context()) },
+		Template: imageBuilderTemplate,
 		Type:     "nebius-image",
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
@@ -103,4 +105,31 @@ func TestAccImageBuilder(t *testing.T) {
 	}
 
 	acctest.TestPlugin(t, testCase)
+}
+
+func prepareEnvs() {
+	privateKey = os.Getenv("PKR_VAR_NB_PRIVATE_KEY")
+	publicKey = os.Getenv("PKR_VAR_NB_PUB_KEY")
+	parentID = os.Getenv("PKR_VAR_NB_PARENT_ID")
+	sa = os.Getenv("PKR_VAR_NB_SA")
+}
+
+func teardown(ctx context.Context) error {
+	resp, err := sdk.Services().Compute().V1().Image().List(ctx, &v1.ListImagesRequest{
+		ParentId: parentID,
+	})
+	if err != nil {
+		return fmt.Errorf("error listing images during Teardown: %w", err)
+	}
+
+	for _, img := range resp.Items {
+		_, err := sdk.Services().Compute().V1().Image().Delete(ctx, &v1.DeleteImageRequest{
+			Id: img.GetMetadata().GetId(),
+		})
+		if err != nil {
+			return fmt.Errorf("error deleting image: %w", err)
+		}
+	}
+
+	return nil
 }
