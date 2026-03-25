@@ -65,6 +65,7 @@ func (c *BaseImageConfig) Validate() error {
 type NetworkConfig struct {
 	SubnetID                 string `mapstructure:"subnet_id"`
 	AssociatePublicIpAddress bool   `mapstructure:"associate_public_ip_address"`
+	PublicAllocationID       string `mapstructure:"public_allocation_id"`
 }
 
 func (c *NetworkConfig) Validate() error {

@@ -128,6 +128,7 @@ func (*FlatInstanceConfig) HCL2Spec() map[string]hcldec.Spec {
 type FlatNetworkConfig struct {
 	SubnetID                 *string `mapstructure:"subnet_id" cty:"subnet_id" hcl:"subnet_id"`
 	AssociatePublicIpAddress *bool   `mapstructure:"associate_public_ip_address" cty:"associate_public_ip_address" hcl:"associate_public_ip_address"`
+	PublicAllocationID       *string `mapstructure:"public_allocation_id" cty:"public_allocation_id" hcl:"public_allocation_id"`
 }
 
 // FlatMapstructure returns a new FlatNetworkConfig.
@@ -144,6 +145,7 @@ func (*FlatNetworkConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
 		"subnet_id":                   &hcldec.AttrSpec{Name: "subnet_id", Type: cty.String, Required: false},
 		"associate_public_ip_address": &hcldec.AttrSpec{Name: "associate_public_ip_address", Type: cty.Bool, Required: false},
+		"public_allocation_id":        &hcldec.AttrSpec{Name: "public_allocation_id", Type: cty.String, Required: false},
 	}
 	return s
 }

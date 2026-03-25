@@ -26,6 +26,10 @@ variable "NB_PRIVATE_KEY" {
   type = string
 }
 
+variable "NB_PUBLIC_ALLOCATION_ID" {
+  type = string
+}
+
 locals {
   nb_image_name = "acc-${uuidv4()}"
 }
@@ -50,7 +54,7 @@ source "nebius-image" "acceptance" {
   }
 
   network {
-    associate_public_ip_address = true
+    public_allocation_id = var.NB_PUBLIC_ALLOCATION_ID
   }
 
   instance {
