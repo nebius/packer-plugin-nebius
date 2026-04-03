@@ -1,0 +1,16 @@
+- name: Prepare secondary disk
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    secondary_disk_device: /dev/disk/by-id/virtio-secondary-disk
+  tasks:
+    - name: Format secondary disk
+      ansible.builtin.shell: |
+        set -euo pipefail
+        disk={{ secondary_disk_device | quote }}
+
+        mkfs.ext4 "$disk"
+        sync
+      args:
+        executable: /bin/bash

@@ -31,18 +31,19 @@ variable "NB_PUBLIC_ALLOCATION_ID" {
 }
 
 locals {
-  nb_image_name = "acc-${uuidv4()}"
+  nb_image_name = "acc-secondary-disk-${uuidv4()}"
 }
 
-source "nebius-image" "acceptance" {
-  communicator = "ssh"
-  ssh_username = "ubuntu"
-  parent_id = var.NB_PARENT_ID
+source "nebius-image" "acceptance-secondary-disk-image" {
+  communicator       = "ssh"
+  ssh_username       = "ubuntu"
+  use_secondary_disk = true
+  parent_id          = var.NB_PARENT_ID
 
   service_account {
-    account_id = var.NB_SA
+    account_id    = var.NB_SA
     public_key_id = var.NB_PUB_KEY
-    private_key = var.NB_PRIVATE_KEY
+    private_key   = var.NB_PRIVATE_KEY
   }
 
   base_image {
@@ -50,6 +51,10 @@ source "nebius-image" "acceptance" {
   }
 
   disk {
+    size_gibibytes = 10
+  }
+
+  secondary_disk {
     size_gibibytes = 10
   }
 
@@ -68,8 +73,9 @@ source "nebius-image" "acceptance" {
 }
 
 build {
-  sources = ["source.nebius-image.acceptance"]
+  sources = ["source.nebius-image.acceptance-secondary-disk-image"]
+
   provisioner "ansible" {
-    playbook_file = "./test-fixtures/provision.yml"
+    playbook_file = "./test-fixtures/secondary_disk_image_provision.yml"
   }
 }
