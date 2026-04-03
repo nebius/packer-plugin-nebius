@@ -15,11 +15,13 @@ import (
 type Config struct {
 	common.PackerConfig  `mapstructure:",squash"`
 	Comm                 communicator.Config               `mapstructure:",squash"`
+	UseSecondaryDisk     bool                              `mapstructure:"use_secondary_disk"`
 	APIEndpoint          string                            `mapstructure:"api_endpoint"`
 	ParentID             string                            `mapstructure:"parent_id"`
 	Token                string                            `mapstructure:"token"`
 	ServiceAccountConfig nebiuscommon.ServiceAccountConfig `mapstructure:"service_account"`
 	DiskConfig           nebiuscommon.DiskConfig           `mapstructure:"disk"`
+	SecondaryDiskConfig  nebiuscommon.SecondaryDiskConfig  `mapstructure:"secondary_disk"`
 	BaseImageConfig      nebiuscommon.BaseImageConfig      `mapstructure:"base_image"`
 	NetworkConfig        nebiuscommon.NetworkConfig        `mapstructure:"network"`
 	InstanceConfig       nebiuscommon.InstanceConfig       `mapstructure:"instance"`
@@ -40,6 +42,13 @@ func (c *Config) validate() []error {
 	}
 	if err := c.DiskConfig.Validate(); err != nil {
 		errors = append(errors, err)
+	}
+	if c.UseSecondaryDisk {
+		if err := c.SecondaryDiskConfig.Validate(); err != nil {
+			errors = append(errors, fmt.Errorf("secondary_disk: %w", err))
+		}
+	} else if c.SecondaryDiskConfig != (nebiuscommon.SecondaryDiskConfig{}) {
+		errors = append(errors, fmt.Errorf("secondary_disk requires use_secondary_disk = true"))
 	}
 	if err := c.BaseImageConfig.Validate(); err != nil {
 		errors = append(errors, err)

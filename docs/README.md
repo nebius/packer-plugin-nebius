@@ -23,4 +23,4 @@ packer plugins install --path packer-plugin-nebius github.com/nebius/nebius
 
 #### Builders
 
-- `nebius-image` - Builds an image by creating a VM, provisioning it over SSH, and publishing the result.
+- `nebius-image` - Builds an image by creating a VM, provisioning it over SSH, and publishing either the boot disk or an attached secondary disk.

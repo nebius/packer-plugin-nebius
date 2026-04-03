@@ -64,6 +64,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 			CommConf:            &b.config.Comm,
 			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
 		},
+		NewStepCreateSecondaryDisk(b.sdk, b.config),
 		NewStepCreateInstance(b.sdk, &b.config),
 		NewStepGetInstanceIP(b.sdk, b.config),
 		&communicator.StepConnect{

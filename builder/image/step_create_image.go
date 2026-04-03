@@ -32,19 +32,23 @@ func (s *StepImageCreate) Run(ctx context.Context, state multistep.StateBag) mul
 	ui := state.Get("ui").(packer.Ui)
 	ui.Message("Image creation...")
 
-	labels := s.config.ImageConfig.Labels
-	if labels == nil {
-		labels = make(map[string]string)
-	}
+	labels := copyLabels(s.config.ImageConfig.Labels)
+	diskID := state.Get(stateDiskID).(string)
+	cpuArchitecture := getCPUArchitecture(
+		s.config.ImageConfig.CPUArchitecture,
+		state.Get(stateBaseImageArch).(computev1.ImageSpec_CPUArchitecture),
+	)
 
-	if s.config.BaseImageConfig.ID != "" {
+	if s.config.UseSecondaryDisk {
+		diskID = state.Get(stateSecondaryDiskID).(string)
+		cpuArchitecture = getCPUArchitecture(s.config.ImageConfig.CPUArchitecture, computev1.ImageSpec_UNSPECIFIED)
+	} else if s.config.BaseImageConfig.ID != "" {
 		labels["based_on_image_id"] = state.Get(stateBaseImageID).(string)
 	} else {
 		labels["based_on_image_family"] = state.Get(stateBaseImageImageFamily).(string)
 		labels["based_on_image_version"] = state.Get(stateBaseImageVersion).(string)
 	}
 
-	diskID := state.Get(stateDiskID).(string)
 	req := &computev1.CreateImageRequest{
 		Metadata: &commonv1.ResourceMetadata{
 			Name:     s.config.ImageConfig.Name,
@@ -52,12 +56,9 @@ func (s *StepImageCreate) Run(ctx context.Context, state multistep.StateBag) mul
 			ParentId: s.config.ImageConfig.ParentID,
 		},
 		Spec: &computev1.ImageSpec{
-			ImageFamily: s.config.ImageConfig.ImageFamily,
-			Source:      &computev1.ImageSpec_SourceDiskId{SourceDiskId: diskID},
-			CpuArchitecture: getCPUArchitecture(
-				s.config.ImageConfig.CPUArchitecture,
-				state.Get(stateBaseImageArch).(computev1.ImageSpec_CPUArchitecture),
-			),
+			ImageFamily:     s.config.ImageConfig.ImageFamily,
+			Source:          &computev1.ImageSpec_SourceDiskId{SourceDiskId: diskID},
+			CpuArchitecture: cpuArchitecture,
 		},
 	}
 
@@ -104,4 +105,17 @@ func getCPUArchitecture(providedCPUArch string, baseImageCPUArch computev1.Image
 	}
 
 	return computev1.ImageSpec_UNSPECIFIED
+}
+
+func copyLabels(labels map[string]string) map[string]string {
+	if len(labels) == 0 {
+		return map[string]string{}
+	}
+
+	cloned := make(map[string]string, len(labels))
+	for key, value := range labels {
+		cloned[key] = value
+	}
+
+	return cloned
 }

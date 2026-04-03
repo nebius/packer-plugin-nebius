@@ -68,11 +68,13 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool                            `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool                            `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool                            `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
+	UseSecondaryDisk          *bool                            `mapstructure:"use_secondary_disk" cty:"use_secondary_disk" hcl:"use_secondary_disk"`
 	APIEndpoint               *string                          `mapstructure:"api_endpoint" cty:"api_endpoint" hcl:"api_endpoint"`
 	ParentID                  *string                          `mapstructure:"parent_id" cty:"parent_id" hcl:"parent_id"`
 	Token                     *string                          `mapstructure:"token" cty:"token" hcl:"token"`
 	ServiceAccountConfig      *common.FlatServiceAccountConfig `mapstructure:"service_account" cty:"service_account" hcl:"service_account"`
 	DiskConfig                *common.FlatDiskConfig           `mapstructure:"disk" cty:"disk" hcl:"disk"`
+	SecondaryDiskConfig       *common.FlatSecondaryDiskConfig  `mapstructure:"secondary_disk" cty:"secondary_disk" hcl:"secondary_disk"`
 	BaseImageConfig           *common.FlatBaseImageConfig      `mapstructure:"base_image" cty:"base_image" hcl:"base_image"`
 	NetworkConfig             *common.FlatNetworkConfig        `mapstructure:"network" cty:"network" hcl:"network"`
 	InstanceConfig            *common.FlatInstanceConfig       `mapstructure:"instance" cty:"instance" hcl:"instance"`
@@ -148,11 +150,13 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ssl":                &hcldec.AttrSpec{Name: "winrm_use_ssl", Type: cty.Bool, Required: false},
 		"winrm_insecure":               &hcldec.AttrSpec{Name: "winrm_insecure", Type: cty.Bool, Required: false},
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
+		"use_secondary_disk":           &hcldec.AttrSpec{Name: "use_secondary_disk", Type: cty.Bool, Required: false},
 		"api_endpoint":                 &hcldec.AttrSpec{Name: "api_endpoint", Type: cty.String, Required: false},
 		"parent_id":                    &hcldec.AttrSpec{Name: "parent_id", Type: cty.String, Required: false},
 		"token":                        &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},
 		"service_account":              &hcldec.BlockSpec{TypeName: "service_account", Nested: hcldec.ObjectSpec((*common.FlatServiceAccountConfig)(nil).HCL2Spec())},
 		"disk":                         &hcldec.BlockSpec{TypeName: "disk", Nested: hcldec.ObjectSpec((*common.FlatDiskConfig)(nil).HCL2Spec())},
+		"secondary_disk":               &hcldec.BlockSpec{TypeName: "secondary_disk", Nested: hcldec.ObjectSpec((*common.FlatSecondaryDiskConfig)(nil).HCL2Spec())},
 		"base_image":                   &hcldec.BlockSpec{TypeName: "base_image", Nested: hcldec.ObjectSpec((*common.FlatBaseImageConfig)(nil).HCL2Spec())},
 		"network":                      &hcldec.BlockSpec{TypeName: "network", Nested: hcldec.ObjectSpec((*common.FlatNetworkConfig)(nil).HCL2Spec())},
 		"instance":                     &hcldec.BlockSpec{TypeName: "instance", Nested: hcldec.ObjectSpec((*common.FlatInstanceConfig)(nil).HCL2Spec())},

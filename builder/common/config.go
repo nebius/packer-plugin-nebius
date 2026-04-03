@@ -1,4 +1,4 @@
-//go:generate packer-sdc mapstructure-to-hcl2 -type ServiceAccountConfig,DiskConfig,BaseImageConfig,NetworkConfig,InstanceConfig,ImageConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type ServiceAccountConfig,DiskConfig,SecondaryDiskConfig,BaseImageConfig,NetworkConfig,InstanceConfig,ImageConfig
 package common
 
 import (
@@ -33,15 +33,28 @@ type DiskConfig struct {
 }
 
 func (c *DiskConfig) Validate() error {
-	diskType := strings.ToLower(strings.TrimSpace(c.Type))
+	return validateDiskConfig(c.Type, c.SizeGibibytes)
+}
+
+type SecondaryDiskConfig struct {
+	Type          string `mapstructure:"type"`
+	SizeGibibytes int64  `mapstructure:"size_gibibytes"`
+}
+
+func (c *SecondaryDiskConfig) Validate() error {
+	return validateDiskConfig(c.Type, c.SizeGibibytes)
+}
+
+func validateDiskConfig(diskTypeValue string, sizeGibibytes int64) error {
+	diskType := strings.ToLower(strings.TrimSpace(diskTypeValue))
 
 	switch diskType {
 	case "", "network_ssd", "network_ssd_non_replicated", "network_ssd_io_m3":
 	default:
-		return fmt.Errorf("invalid disk.type: %s", c.Type)
+		return fmt.Errorf("invalid disk.type: %s", diskTypeValue)
 	}
 
-	if c.SizeGibibytes < 10 {
+	if sizeGibibytes < 10 {
 		return fmt.Errorf("disk.size_gibibytes must be at least 10 GiB")
 	}
 
