@@ -3,7 +3,7 @@
   become: true
   gather_facts: false
   vars:
-    secondary_disk_device: /dev/disk/by-id/virtio-secondary-disk
+    secondary_disk_device: /dev/disk/by-id/virtio-secondary_disk
     secondary_disk_mountpoint: /mnt/secondary-disk
   tasks:
     - name: Ensure that net-tools is installed

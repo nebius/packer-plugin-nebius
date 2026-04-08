@@ -17,7 +17,7 @@ import (
 
 const stateInstanceID = "instance_id"
 const stateIPAddress = "ip_address"
-const secondaryDiskDeviceID = "secondary-disk"
+const secondaryDiskDeviceID = "secondary_disk"
 
 type StepCreateInstance struct {
 	sdk    *gosdk.SDK
@@ -86,7 +86,7 @@ func (s *StepCreateInstance) Run(ctx context.Context, state multistep.StateBag) 
 		},
 	}
 
-	if s.config.UseSecondaryDisk {
+	if s.config.imageSource() == imageSourceSecondaryDisk {
 		secondaryDiskID := state.Get(stateSecondaryDiskID).(string)
 		req.Spec.SecondaryDisks = []*computev1.AttachedDiskSpec{
 			{

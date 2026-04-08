@@ -11,11 +11,9 @@ packer {
 }
 
 source "nebius-image" "ubuntu2404-secondary-disk" {
-  communicator       = "ssh"
-  ssh_username       = "ubuntu"
-  use_secondary_disk = true
-  # This example intentionally formats the attached secondary disk and
-  # publishes the resulting image from that disk instead of the boot disk.
+  communicator = "ssh"
+  ssh_username = "ubuntu"
+  image_source = "secondary_disk"
   service_account {
     private_key_file = "path/to/private.pem"
     public_key_id    = "publickey-e0tk41vmw8sqsk6ja8"
@@ -24,6 +22,8 @@ source "nebius-image" "ubuntu2404-secondary-disk" {
   disk {
     size_gibibytes = 10
   }
+  # This example intentionally formats the attached secondary disk and
+  # publishes the resulting image from that disk instead of the boot disk.
   secondary_disk {
     size_gibibytes = 10
   }

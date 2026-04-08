@@ -68,7 +68,7 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool                            `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool                            `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool                            `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
-	UseSecondaryDisk          *bool                            `mapstructure:"use_secondary_disk" cty:"use_secondary_disk" hcl:"use_secondary_disk"`
+	ImageSource               *string                          `mapstructure:"image_source" cty:"image_source" hcl:"image_source"`
 	APIEndpoint               *string                          `mapstructure:"api_endpoint" cty:"api_endpoint" hcl:"api_endpoint"`
 	ParentID                  *string                          `mapstructure:"parent_id" cty:"parent_id" hcl:"parent_id"`
 	Token                     *string                          `mapstructure:"token" cty:"token" hcl:"token"`
@@ -150,7 +150,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ssl":                &hcldec.AttrSpec{Name: "winrm_use_ssl", Type: cty.Bool, Required: false},
 		"winrm_insecure":               &hcldec.AttrSpec{Name: "winrm_insecure", Type: cty.Bool, Required: false},
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
-		"use_secondary_disk":           &hcldec.AttrSpec{Name: "use_secondary_disk", Type: cty.Bool, Required: false},
+		"image_source":                 &hcldec.AttrSpec{Name: "image_source", Type: cty.String, Required: false},
 		"api_endpoint":                 &hcldec.AttrSpec{Name: "api_endpoint", Type: cty.String, Required: false},
 		"parent_id":                    &hcldec.AttrSpec{Name: "parent_id", Type: cty.String, Required: false},
 		"token":                        &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},

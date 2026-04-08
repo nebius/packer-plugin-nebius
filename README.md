@@ -32,8 +32,8 @@ Key settings:
 - `service_account` - `public_key_id`, `account_id`, and one of `private_key` or `private_key_file`.
 - `base_image` - `id` or `family`.
 - `disk` - `size_gibibytes` (minimum 10), optional `type`. This is always the VM boot disk.
-- `use_secondary_disk` - optional boolean. When `true`, the builder creates an additional raw disk and publishes the final image from that disk instead of the boot disk.
-- `secondary_disk` - required when `use_secondary_disk = true`; same fields as `disk`.
+- `image_source` - optional string. `boot_disk` by default; set to `secondary_disk` to publish the final image from an attached secondary disk instead of the boot disk.
+- `secondary_disk` - required when `image_source = "secondary_disk"`; same fields as `disk`.
 - `network` - `associate_public_ip_address` (optional, auto allocation) or `public_allocation_id` (optional, preallocated public ID).
 - `instance` - `platform` and `preset`.
 - `image` - `name` (required), optional family metadata.

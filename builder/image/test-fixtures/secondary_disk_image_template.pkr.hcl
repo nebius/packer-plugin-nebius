@@ -35,10 +35,10 @@ locals {
 }
 
 source "nebius-image" "acceptance-secondary-disk-image" {
-  communicator       = "ssh"
-  ssh_username       = "ubuntu"
-  use_secondary_disk = true
-  parent_id          = var.NB_PARENT_ID
+  communicator = "ssh"
+  ssh_username = "ubuntu"
+  image_source = "secondary_disk"
+  parent_id    = var.NB_PARENT_ID
 
   service_account {
     account_id    = var.NB_SA

@@ -39,7 +39,7 @@ func (s *StepImageCreate) Run(ctx context.Context, state multistep.StateBag) mul
 		state.Get(stateBaseImageArch).(computev1.ImageSpec_CPUArchitecture),
 	)
 
-	if s.config.UseSecondaryDisk {
+	if s.config.imageSource() == imageSourceSecondaryDisk {
 		diskID = state.Get(stateSecondaryDiskID).(string)
 		cpuArchitecture = getCPUArchitecture(s.config.ImageConfig.CPUArchitecture, computev1.ImageSpec_UNSPECIFIED)
 	} else if s.config.BaseImageConfig.ID != "" {

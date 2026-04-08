@@ -1,5 +1,5 @@
 and publishes a new image. By default the published image is created from the
-boot disk. When `use_secondary_disk = true`, the builder still boots from the
+boot disk. When `image_source = "secondary_disk"`, the builder still boots from the
 base image but creates the final image from an attached secondary disk.
 
 ## Required
@@ -22,8 +22,8 @@ base image but creates the final image from an attached secondary disk.
 - `api_endpoint` (string) - Nebius API endpoint (default is the SDK default).
 - `communicator` (string) - Must be `ssh` (default).
 - `disk.type` (string) - Boot disk type (e.g. `network_ssd`).
-- `use_secondary_disk` (bool) - Create the final image from an attached secondary disk instead of the boot disk.
-- `secondary_disk.size_gibibytes` (number) - Secondary disk size, minimum 10 GiB (required when `use_secondary_disk` is enabled).
+- `image_source` (string) - `boot_disk` (default) or `secondary_disk`. Use `secondary_disk` to create the final image from an attached secondary disk instead of the boot disk.
+- `secondary_disk.size_gibibytes` (number) - Secondary disk size, minimum 10 GiB (required when `image_source = "secondary_disk"`).
 - `secondary_disk.type` (string) - Secondary disk type (e.g. `network_ssd`).
 - `base_image.parent_id` (string) - Parent for the base image family lookup (default public-images project).
 - `network.subnet_id` (string) - The ID of an existing subnet that will be used to create the instance. If not provided, the plugin will attempt to find the project's default network.

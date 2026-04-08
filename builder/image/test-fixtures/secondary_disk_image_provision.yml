@@ -3,7 +3,7 @@
   become: true
   gather_facts: false
   vars:
-    secondary_disk_device: /dev/disk/by-id/virtio-secondary-disk
+    secondary_disk_device: /dev/disk/by-id/virtio-secondary_disk
   tasks:
     - name: Format secondary disk
       ansible.builtin.shell: |

@@ -29,7 +29,7 @@ func NewStepCreateSecondaryDisk(sdk *gosdk.SDK, config Config) *StepCreateSecond
 }
 
 func (s *StepCreateSecondaryDisk) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
-	if !s.config.UseSecondaryDisk {
+	if s.config.imageSource() != imageSourceSecondaryDisk {
 		return multistep.ActionContinue
 	}
 
