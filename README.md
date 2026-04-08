@@ -2,7 +2,7 @@
 
 # Packer Plugin Nebius
 
-Packer Plugin Nebius provides a Nebius Compute builder for creating custom images from base images. The plugin is designed to integrate cleanly into standard Packer workflows via `packer init` and the required plugin block. Configuration focuses on explicit control of base images, instance shape, and image metadata. The builder is optimized for repeatable image pipelines in Nebius projects. Example usage is included to help you get started quickly. © Nebius BV, 2026.
+Packer Plugin Nebius provides a Nebius Compute builder for creating custom images from base images. The plugin is designed to integrate cleanly into standard Packer workflows via `packer init` and the required plugin block. Configuration focuses on explicit control of base images, instance shape, disk layout, and image metadata. The builder is optimized for repeatable image pipelines in Nebius projects. It supports both the default boot-disk image flow and a secondary-disk flow where the VM boots from the base image but the published image is created from an attached data disk. Example usage is included to help you get started quickly. © Nebius BV, 2026.
 
 ## Installation
 
@@ -31,13 +31,17 @@ Key settings:
 - `parent_id` - Project or folder to place resources in.
 - `service_account` - `public_key_id`, `account_id`, and one of `private_key` or `private_key_file`.
 - `base_image` - `id` or `family`.
-- `disk` - `size_gibibytes` (minimum 10), optional `type`.
+- `disk` - `size_gibibytes` (minimum 10), optional `type`. This is always the VM boot disk.
+- `image_source` - optional string. `boot_disk` by default; set to `secondary_disk` to publish the final image from an attached secondary disk instead of the boot disk.
+- `secondary_disk` - required when `image_source = "secondary_disk"`; same fields as `disk`.
 - `network` - `associate_public_ip_address` (optional, auto allocation) or `public_allocation_id` (optional, preallocated public ID).
 - `instance` - `platform` and `preset`.
 - `image` - `name` (required), optional family metadata.
 - `ssh_username` - required; only `ssh` communicator is supported.
 
-Example is available in `example/build.pkr.hcl`.
+Examples:
+- `examples/boot-disk-image/build.pkr.hcl` - creates an image from the provisioned boot disk.
+- `examples/secondary-disk-image/build.pkr.hcl` - boots from the base image, provisions an attached secondary disk, and creates the final image from that secondary disk.
 
 ## Build from source
 

@@ -1,4 +1,6 @@
-and publishes a new image.
+and publishes a new image. By default the published image is created from the
+boot disk. When `image_source = "secondary_disk"`, the builder still boots from the
+base image but creates the final image from an attached secondary disk.
 
 ## Required
 
@@ -9,7 +11,7 @@ and publishes a new image.
 - `service_account.public_key_id` (string) - Service account public key ID (required if `token` is not set).
 - `service_account.account_id` (string) - Service account ID (required if `token` is not set).
 - `base_image.id` or `base_image.family` (string) - Source image ID or family.
-- `disk.size_gibibytes` (number) - Disk size, minimum 10 GiB.
+- `disk.size_gibibytes` (number) - Boot disk size, minimum 10 GiB.
 - `instance.platform` (string) - Nebius platform name.
 - `instance.preset` (string) - Nebius preset name.
 - `image.name` (string) - Result image name.
@@ -19,7 +21,10 @@ and publishes a new image.
 
 - `api_endpoint` (string) - Nebius API endpoint (default is the SDK default).
 - `communicator` (string) - Must be `ssh` (default).
-- `disk.type` (string) - Disk type (e.g. `network_ssd`).
+- `disk.type` (string) - Boot disk type (e.g. `network_ssd`).
+- `image_source` (string) - `boot_disk` (default) or `secondary_disk`. Use `secondary_disk` to create the final image from an attached secondary disk instead of the boot disk.
+- `secondary_disk.size_gibibytes` (number) - Secondary disk size, minimum 10 GiB (required when `image_source = "secondary_disk"`).
+- `secondary_disk.type` (string) - Secondary disk type (e.g. `network_ssd`).
 - `base_image.parent_id` (string) - Parent for the base image family lookup (default public-images project).
 - `network.subnet_id` (string) - The ID of an existing subnet that will be used to create the instance. If not provided, the plugin will attempt to find the project's default network.
 - `network.associate_public_ip_address` (bool) - Allocate a public IP automatically.

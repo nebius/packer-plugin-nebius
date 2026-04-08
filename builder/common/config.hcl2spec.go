@@ -150,6 +150,31 @@ func (*FlatNetworkConfig) HCL2Spec() map[string]hcldec.Spec {
 	return s
 }
 
+// FlatSecondaryDiskConfig is an auto-generated flat version of SecondaryDiskConfig.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatSecondaryDiskConfig struct {
+	Type          *string `mapstructure:"type" cty:"type" hcl:"type"`
+	SizeGibibytes *int64  `mapstructure:"size_gibibytes" cty:"size_gibibytes" hcl:"size_gibibytes"`
+}
+
+// FlatMapstructure returns a new FlatSecondaryDiskConfig.
+// FlatSecondaryDiskConfig is an auto-generated flat version of SecondaryDiskConfig.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*SecondaryDiskConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatSecondaryDiskConfig)
+}
+
+// HCL2Spec returns the hcl spec of a SecondaryDiskConfig.
+// This spec is used by HCL to read the fields of SecondaryDiskConfig.
+// The decoded values from this spec will then be applied to a FlatSecondaryDiskConfig.
+func (*FlatSecondaryDiskConfig) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"type":           &hcldec.AttrSpec{Name: "type", Type: cty.String, Required: false},
+		"size_gibibytes": &hcldec.AttrSpec{Name: "size_gibibytes", Type: cty.Number, Required: false},
+	}
+	return s
+}
+
 // FlatServiceAccountConfig is an auto-generated flat version of ServiceAccountConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatServiceAccountConfig struct {

@@ -1,0 +1,71 @@
+- name: Prepare secondary disk
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    secondary_disk_device: /dev/disk/by-id/virtio-secondary_disk
+    secondary_disk_mountpoint: /mnt/secondary-disk
+  tasks:
+    - name: Ensure that net-tools is installed
+      ansible.builtin.package:
+        name: net-tools
+        state: present
+
+    - name: Verify expected secondary disk path exists
+      ansible.builtin.shell: |
+        set -euo pipefail
+        [ -b {{ secondary_disk_device | quote }} ]
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Verify secondary disk is safe to format
+      ansible.builtin.shell: |
+        set -euo pipefail
+        disk={{ secondary_disk_device | quote }}
+
+        if findmnt -rn -S "$disk" >/dev/null; then
+          echo "secondary disk is already mounted: $disk" >&2
+          exit 1
+        fi
+
+        if lsblk -nr -o MOUNTPOINT "$disk" | grep -q '[^[:space:]]'; then
+          echo "secondary disk has mounted children: $disk" >&2
+          exit 1
+        fi
+
+        if lsblk -nr -o NAME,TYPE "$disk" | awk '$2 == "part" { found = 1 } END { exit found ? 0 : 1 }'; then
+          echo "secondary disk already has partitions: $disk" >&2
+          exit 1
+        fi
+
+        if blkid "$disk" >/dev/null 2>&1; then
+          echo "secondary disk already contains a filesystem signature: $disk" >&2
+          exit 1
+        fi
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Create filesystem and marker on secondary disk
+      ansible.builtin.shell: |
+        set -euo pipefail
+        disk={{ secondary_disk_device | quote }}
+        mountpoint={{ secondary_disk_mountpoint | quote }}
+
+        mkdir -p "$mountpoint"
+        cleanup() {
+          if findmnt -rn --target "$mountpoint" >/dev/null 2>&1; then
+            umount "$mountpoint"
+          fi
+        }
+        trap cleanup EXIT
+
+        mkfs.ext4 "$disk"
+        mount "$disk" "$mountpoint"
+        cat <<'EOF' > "$mountpoint/README.txt"
+        This disk image was prepared by the Nebius Packer secondary disk example.
+        EOF
+        sync
+      args:
+        executable: /bin/bash

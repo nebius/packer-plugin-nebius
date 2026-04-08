@@ -3,6 +3,7 @@ package image
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -12,14 +13,19 @@ import (
 	nebiuscommon "github.com/hashicorp/packer-plugin-nebius/builder/common"
 )
 
+const imageSourceBootDisk = "boot_disk"
+const imageSourceSecondaryDisk = "secondary_disk"
+
 type Config struct {
 	common.PackerConfig  `mapstructure:",squash"`
 	Comm                 communicator.Config               `mapstructure:",squash"`
+	ImageSource          string                            `mapstructure:"image_source"`
 	APIEndpoint          string                            `mapstructure:"api_endpoint"`
 	ParentID             string                            `mapstructure:"parent_id"`
 	Token                string                            `mapstructure:"token"`
 	ServiceAccountConfig nebiuscommon.ServiceAccountConfig `mapstructure:"service_account"`
 	DiskConfig           nebiuscommon.DiskConfig           `mapstructure:"disk"`
+	SecondaryDiskConfig  nebiuscommon.SecondaryDiskConfig  `mapstructure:"secondary_disk"`
 	BaseImageConfig      nebiuscommon.BaseImageConfig      `mapstructure:"base_image"`
 	NetworkConfig        nebiuscommon.NetworkConfig        `mapstructure:"network"`
 	InstanceConfig       nebiuscommon.InstanceConfig       `mapstructure:"instance"`
@@ -41,6 +47,18 @@ func (c *Config) validate() []error {
 	if err := c.DiskConfig.Validate(); err != nil {
 		errors = append(errors, err)
 	}
+	switch c.imageSource() {
+	case imageSourceBootDisk:
+		if c.SecondaryDiskConfig != (nebiuscommon.SecondaryDiskConfig{}) {
+			errors = append(errors, fmt.Errorf("secondary_disk requires image_source = %q", imageSourceSecondaryDisk))
+		}
+	case imageSourceSecondaryDisk:
+		if err := c.SecondaryDiskConfig.Validate(); err != nil {
+			errors = append(errors, fmt.Errorf("secondary_disk: %w", err))
+		}
+	default:
+		errors = append(errors, fmt.Errorf("image_source must be one of %q or %q", imageSourceBootDisk, imageSourceSecondaryDisk))
+	}
 	if err := c.BaseImageConfig.Validate(); err != nil {
 		errors = append(errors, err)
 	}
@@ -55,6 +73,15 @@ func (c *Config) validate() []error {
 	}
 
 	return errors
+}
+
+func (c *Config) imageSource() string {
+	normalized := strings.ToLower(strings.TrimSpace(c.ImageSource))
+	if normalized == "" {
+		return imageSourceBootDisk
+	}
+
+	return normalized
 }
 
 func (c *Config) prepareSSH(ctx *interpolate.Context) []error {
