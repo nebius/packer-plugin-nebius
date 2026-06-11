@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/packer-plugin-nebius/builder/common"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -81,7 +80,8 @@ func (s *StepImageCreate) Run(ctx context.Context, state multistep.StateBag) mul
 	ui.Message(fmt.Sprintf("Created operation %s for image %s creation", opID, imageID))
 	ui.Message(fmt.Sprintf("Waiting for finish of operation %s...", opID))
 
-	if err := common.WaitFinishOperationWithTimeout(ctx, s.sdk, opID, 10*time.Minute); err != nil {
+	// can be long
+	if err := common.WaitFinishOperation(ctx, s.sdk, opID); err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
