@@ -19,6 +19,8 @@ You can also install a local build:
 packer plugins install --path packer-plugin-nebius github.com/nebius/nebius
 ```
 
+### [How to use with Nebius Cloud](https://docs.nebius.com/compute/storage/packer#creating-boot-disk-images-with-packer)
+
 ### Components
 
 #### Builders
