@@ -30,7 +30,7 @@ func (s *StepStopInstance) Run(ctx context.Context, state multistep.StateBag) mu
 		Id: state.Get(stateInstanceID).(string),
 	})
 	if err != nil {
-		state.Put("error", fmt.Errorf("failed to create instance: %w", err))
+		state.Put("error", fmt.Errorf("failed to stop instance: %w", err))
 		return multistep.ActionHalt
 	}
 
