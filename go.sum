@@ -337,6 +337,8 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/nebius/gosdk v0.2.8 h1:rg/3d1s36NVWyxskDHLasjlUEdmq8y+EV7fkwbl+iUE=
 github.com/nebius/gosdk v0.2.8/go.mod h1:/Oxx4LcJgp5bhuFvsJNV+TfdKOXmgnM2RrqvLBOWfyU=
+github.com/nebius/gosdk v0.2.91 h1:t9Ld96w9UHBXuf4cNoTt49AxT70/aF0eMKZGBdxDkTg=
+github.com/nebius/gosdk v0.2.91/go.mod h1:M25m7hhesvpkwuj5UFUMtlmI2vHK7e5rrYBl7QgeZaM=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d h1:VhgPp6v9qf9Agr/56bj7Y/xa04UccTW04VP0Qed4vnQ=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d/go.mod h1:YUTz3bUH2ZwIWBy3CJBeOBEugqcmXREj14T+iG/4k4U=
 github.com/nywilken/go-cty v1.13.3 h1:03U99oXf3j3g9xgqAE3YGpixCjM8Mg09KZ0Ji9LzX0o=
@@ -435,6 +437,8 @@ go.opentelemetry.io/otel/sdk/metric v1.44.0 h1:3LlKgI+VjbVsjNRFZJZAJ30WjXC5VkNRk
 go.opentelemetry.io/otel/sdk/metric v1.44.0/go.mod h1:5B5pMARnXxKhltooO4xUuCBorl65a4EpnTalObqOigA=
 go.opentelemetry.io/otel/trace v1.44.0 h1:jxF5CsGYCe74MCRx2X4g7WsY/VBKRqqpNvXlX/6gtIk=
 go.opentelemetry.io/otel/trace v1.44.0/go.mod h1:oLl1jrMQAVo6v3GAggN+1VH9VIz9iUSvW53sW1Q8PIE=
+go.yaml.in/yaml/v3 v3.0.2 h1:59KTFzy3OmXQVRXoaeBNfmqtzmBcPaUCAptjLyG9O/c=
+go.yaml.in/yaml/v3 v3.0.2/go.mod h1:tBHosrYAkRZjRAOREWbDnBXUf08JOwYq++0QNwQiWzI=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190923035154-9ee001bba392/go.mod h1:/lpIB1dKB+9EgE3H3cr1v9wB50oz8l4C4h62xy7jSTY=
