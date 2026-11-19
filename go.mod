@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/hcl/v2 v2.25.0
 	github.com/hashicorp/packer-plugin-sdk v0.6.13
-	github.com/nebius/gosdk v0.2.91
+	github.com/nebius/gosdk v0.2.94
 	github.com/zclconf/go-cty v1.19.0
 	google.golang.org/grpc v1.83.2
 )
