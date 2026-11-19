@@ -5,9 +5,30 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: gomod
+    directory: "/"
     schedule:
-      interval: "daily"
+      interval: daily
     allow:
-      - dependency-name: "github.com/hashicorp/packer-plugin-sdk"
+      - dependency-type: all
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
+    groups:
+      nebius:
+        applies-to: version-updates
+        patterns:
+          - "github.com/nebius/*"
+      other-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
