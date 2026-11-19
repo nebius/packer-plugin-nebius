@@ -26,7 +26,7 @@ jobs:
       PKR_VAR_NB_PRIVATE_KEY: ${{ secrets.PKR_VAR_NB_PRIVATE_KEY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Go
         uses: actions/setup-go@v7.0.0
